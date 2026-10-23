@@ -1,0 +1,873 @@
+/* AWS SAA 問題集。スマホを主にして、PCでも読める幅に収める。
+   外部の部品（フォント・CDN）は使わない。文字は端末にあるものを使う。
+
+   見た目の決まり（段階6-13・見本B）
+   - 地は薄い灰色、白い面を角の丸み16〜20pxで置き、枠線は使わず、すき間で区切る
+   - 色は地・面・文字・薄い文字・アクセント・テスト・正解・不正解・問題文の色と、その淡い地だけ
+     （不正解の色は、正解の色と明るさでも区別できる暗い赤にする）
+   - 文字の大きさは3段階（--fs-s / --fs-m / --fs-l）。「クリア！」「合格！」の表示だけ別に大きくする
+   - ボタン・行の高さは最低 --tap（44px） */
+
+:root {
+  /* 色 */
+  --bg: #F2F4F7;
+  --panel: #FFFFFF;
+  --text: #121826;
+  --muted: #5B6576;
+  --soft: #EEF0F4;        /* 面の中の、さらに淡い地（記号の丸・区切りの線） */
+  --track: #E4E8EF;       /* タブの台・進みの帯の地 */
+  --accent: #2847C9;
+  --accent-weak: #E8EDFB;
+  --accent-on: #D5DDF7;   /* アクセントの地の上の、薄い文字 */
+  --test: #A2480F;
+  --test-weak: #FDEBDD;
+  --ok: #1E7A4C;
+  --ok-weak: #E3F4EA;
+  --ng: #8F1D14;
+  --ng-weak: #FBE5E1;
+  --hl: #FFE58F;
+  --q-face: #DCE3EE;      /* 問いの面（①のカードの「問い」・問題文の面。選択肢の白・ページの地と見分ける。
+                             選んだ選択肢の地 --accent-weak とも見分けるため、青みを強くしない。段階6-17・6-17b） */
+
+  /* 文字の大きさ（3段階） */
+  --fs-s: 13px;
+  --fs-m: 16px;
+  --fs-l: 20px;
+
+  --r-panel: 20px;
+  --r-item: 16px;
+  --r-small: 12px;
+  --tap: 44px;
+
+  --font: "BIZ UDPGothic", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP",
+    "Noto Sans CJK JP", "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-m);
+  line-height: 1.7;
+}
+
+[hidden] { display: none !important; }
+
+a { color: inherit; }
+
+.icon { flex: 0 0 auto; display: block; }
+
+/* ------------------------------------------------------------ 上の帯とメニュー */
+
+.appbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 60px;
+  padding: 8px max(16px, calc((100% - 720px) / 2 + 16px)) 8px max(20px, calc((100% - 720px) / 2 + 20px));
+  background: var(--bg);
+}
+
+.appbar-title { flex: 1 1 auto; font-size: var(--fs-m); font-weight: 700; }
+
+.appbar-menu {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tap);
+  height: var(--tap);
+  padding: 0;
+  color: var(--text);
+  background: var(--panel);
+  border: 0;
+  border-radius: var(--r-small);
+  cursor: pointer;
+}
+.appbar-menu:hover { color: var(--accent); }
+
+.menu {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.menu-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  background: var(--panel);
+  border-radius: var(--r-panel);
+  box-shadow: 0 12px 32px rgba(18, 24, 38, 0.16);
+  max-height: calc(100vh - 88px);
+  overflow-y: auto;
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 14px;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-small);
+  font-family: inherit;
+  font-size: var(--fs-m);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.menu-item-sub { padding-left: 30px; color: var(--muted); }
+.menu-item:hover { background: var(--bg); color: var(--accent); }
+.menu-item-danger { color: var(--ng); }
+.menu-sep { margin: 6px 8px; border: 0; border-top: 1px solid var(--soft); }
+
+.main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4px 16px 48px;
+}
+
+/* ------------------------------------------------------------ 確認のウィンドウと知らせ */
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(18, 24, 38, 0.48);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.dialog-box {
+  background: var(--panel);
+  border-radius: var(--r-panel);
+  padding: 24px 20px 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 16px 40px rgba(18, 24, 38, 0.24);
+}
+.dialog-msg { font-size: var(--fs-m); font-weight: 700; line-height: 1.7; margin: 0 0 20px; }
+.dialog-btns { display: flex; gap: 10px; }
+.dialog-btns .btn { flex: 1 1 0; }
+
+/* 済んだ知らせ：画面の下に小さく出し、数秒で消す */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 45;
+  max-width: calc(100% - 32px);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--text);
+  color: #FFFFFF;
+  font-size: var(--fs-s);
+  font-weight: 700;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+.toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ------------------------------------------------------------ 共通の箱 */
+
+.panel {
+  background: var(--panel);
+  border-radius: var(--r-panel);
+  padding: 20px;
+  margin: 0 0 16px;
+}
+/* 問題の面（問題文・②のカードの問い）は、①のカードの「問い」と同じ地にする。選択肢は白のまま（段階6-17） */
+.panel.panel-q { background: var(--q-face); }
+
+.head-title { font-size: var(--fs-l); font-weight: 700; margin: 4px 4px 14px; line-height: 1.5; }
+/* 戻るリンク（ページの名前の上。段階6-22） */
+.backlink {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 32px;
+  margin: 0 0 0 -2px;
+  padding: 2px 6px 2px 0;
+  font-size: var(--fs-s);
+  color: var(--accent);
+  text-decoration: none;
+}
+.backlink:hover { text-decoration: underline; }
+.backlink + .head-title { margin-top: 0; }
+
+.note { font-size: var(--fs-s); color: var(--muted); margin: 0 0 8px; }
+.note:last-child { margin-bottom: 0; }
+
+.notice {
+  font-size: var(--fs-s);
+  background: var(--accent-weak);
+  border-radius: var(--r-small);
+  padding: 10px 14px;
+  margin: 0 0 16px;
+}
+.notice-warn { background: var(--ng-weak); color: var(--ng); font-weight: 700; }
+.notice-strong { background: var(--ok-weak); color: var(--ok); font-weight: 700; }
+
+.host { display: block; }
+
+/* ------------------------------------------------------------ ボタン */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 10px 18px;
+  font-size: var(--fs-m);
+  font-family: inherit;
+  font-weight: 700;
+  line-height: 1.4;
+  border-radius: var(--r-item);
+  border: 0;
+  background: var(--panel);
+  color: var(--accent);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-main { background: var(--accent); color: #FFFFFF; }
+.btn-quiet { background: var(--bg); color: var(--accent); font-weight: 400; }
+.panel .btn-quiet, .result .btn-quiet { background: var(--bg); }
+.host > .qactions .btn-quiet, .main > .qactions .btn-quiet { background: transparent; }
+.btn-danger { background: var(--ng); color: #FFFFFF; }
+.btn-ok { background: var(--ok); color: #FFFFFF; }
+.btn-wide { width: 100%; }
+.btn-small { flex: 0 0 auto; min-height: var(--tap); min-width: 64px; padding: 4px 14px; font-size: var(--fs-s); }
+.btn:disabled { background: var(--track); color: #8B95A5; cursor: default; }
+
+.qactions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.qactions .btn { width: 100%; }
+.qactions-row { flex-direction: row; }
+.qactions-row .btn { flex: 1 1 0; }
+.qactions-stack { flex-direction: column; }
+
+/* 画面の下に固定するボタンの帯（スクロールしても押せる） */
+.sticky-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  margin: 16px -16px -48px;
+  padding: 12px 16px 20px;
+  background: linear-gradient(to bottom, rgba(242, 244, 247, 0) 0, var(--bg) 14px);
+}
+.sticky-inner { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+.sticky-inner .btn-quiet { background: var(--panel); }
+.sticky-row { flex-direction: row; }
+.sticky-row .btn { flex: 1 1 0; }
+
+/* ------------------------------------------------------------ 印・進みの帯 */
+
+/* まだ：白抜きの丸。済み・完了：緑の塗りつぶしの丸と白いチェック（js/ui.js の doneMark） */
+.mark-todo {
+  flex: 0 0 auto;
+  display: inline-block;
+  border: 2px solid #B8C1D0;
+  border-radius: 50%;
+}
+.mark-done-bg { fill: var(--ok); }
+/* テストの行：線で描いた鉛筆の絵 */
+.mark-test { color: var(--test); }
+
+.bar { height: 6px; border-radius: 3px; background: var(--track); margin: 0 0 6px; overflow: hidden; }
+.bar-fill { height: 6px; border-radius: 3px; background: var(--ok); }
+
+/* ------------------------------------------------------------ 今日やること（ホームの一番上） */
+
+.today-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 0 0 12px; }
+.today-title { margin: 0; font-size: var(--fs-l); font-weight: 700; }
+.today-count { font-size: var(--fs-m); font-weight: 700; color: var(--accent); }
+.today-msg { margin: 0; font-size: var(--fs-m); font-weight: 700; }
+.today-clear { margin: 12px 0 4px; color: var(--ok); font-size: var(--fs-l); font-weight: 700; text-align: center; }
+.today .qactions { margin-top: 12px; }
+
+.trows { display: flex; flex-direction: column; }
+.trow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 4px 0;
+  color: var(--text);
+  text-decoration: none;
+}
+.trow:hover .trow-name { color: var(--accent); }
+.trow-name { flex: 1 1 auto; font-size: var(--fs-m); line-height: 1.5; }
+/* 行の頭の小さな言葉（「復習」「レッスン」「章末テスト」「分野テスト」「模擬試験」） */
+.trow-kind { font-size: var(--fs-s); color: var(--accent); margin-right: 1em; }
+.trow-kind.is-test { color: var(--test); }
+/* 復習の山・テストの行の「残り◯問」（段階6-21） */
+.trow-left { font-size: var(--fs-s); color: var(--muted); margin-left: 1em; white-space: nowrap; }
+.trows-sep { height: 1px; background: var(--soft); margin: 6px 0; }
+/* 終えた行：取り消し線と薄い色 */
+.trow.is-done, .trow.is-done .trow-name { color: #8A93A3; }
+.trow.is-done .trow-name { text-decoration: line-through; text-decoration-color: #8A93A3; }
+.trow.is-done .trow-kind { color: #8A93A3; }
+
+/* ------------------------------------------------------------ 一覧の行（白い面の中） */
+
+.list { padding: 8px 20px; }
+.lrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-m);
+  line-height: 1.5;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.list > .lrow + .lrow, .block-body > .lrow + .lrow { box-shadow: 0 -1px 0 var(--soft); }
+.lrow:hover .lrow-name { color: var(--accent); }
+.lrow-name { flex: 1 1 auto; }
+.lrow-meta { flex: 0 0 auto; font-size: var(--fs-s); color: var(--muted); }
+.lrow-pass { flex: 0 0 auto; min-width: 40px; text-align: right; font-size: var(--fs-s); font-weight: 700; color: var(--test); }
+.lrow-meta.is-done { color: var(--ok); font-weight: 700; }
+.lrow-unit { gap: 12px; }
+/* テストの行：オレンジの地と文字 */
+.lrow-test {
+  gap: 12px;
+  padding: 6px 12px;
+  margin-top: 6px;
+  border-radius: 14px;
+  background: var(--test-weak);
+  color: var(--test);
+}
+.lrow-test .lrow-name { color: var(--test); font-weight: 700; }
+.lrow-test .lrow-pass { color: var(--test); }
+.list > .lrow-test + .lrow-test, .block-body > .lrow + .lrow-test { box-shadow: none; }
+/* 分野の画面の分野テストの枠（行が1つだけ）：上下左右とも12px。行の上の余白は0（段階6-22d） */
+.list:has(> .lrow-test) { padding: 12px; }
+.list > .lrow-test:first-child { margin-top: 0; }
+
+/* 章（たたんだ形） */
+.blocks { display: flex; flex-direction: column; }
+.block { padding: 4px 20px; margin-bottom: 10px; }
+.block.is-open { padding-bottom: 10px; }
+.block-head { font-weight: 700; }
+.block-arrow { color: var(--muted); }
+.block-body { display: flex; flex-direction: column; }
+.block-body > .lrow:first-child { box-shadow: 0 -1px 0 var(--soft); }
+
+/* 苦手な問題・苦手なカード・模擬試験の入口
+   （上の段に苦手な問題・苦手なカード、下の段に模擬試験を横いっぱい。PCも同じ。段階6-22） */
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 0 16px; }
+.tile.tile-wide { grid-column: 1 / -1; }
+.tile {
+  flex: 1 1 0;
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border-radius: var(--r-item);
+  font-size: var(--fs-m);
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text);
+}
+.tile:hover { color: var(--accent); }
+.tile-pass { color: var(--test); font-size: var(--fs-s); }
+/* 模擬試験：テストと同じ薄いオレンジの地とオレンジの文字（段階6-22） */
+.tile.tile-test { background: var(--test-weak); color: var(--test); }
+.tile.tile-test:hover { color: var(--test); text-decoration: underline; }
+.tile-count { color: var(--muted); font-weight: 400; }
+
+/* ------------------------------------------------------------ スケジュールのページ */
+
+.field-label { display: block; font-size: var(--fs-s); color: var(--muted); font-weight: 700; margin: 18px 0 8px; }
+.panel > .field-label:first-child { margin-top: 0; }
+.field {
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--r-small);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-m);
+}
+.field.is-error { background: var(--ng-weak); }
+.field-error { margin: 6px 2px 0; font-size: var(--fs-s); font-weight: 700; color: var(--ng); }
+.field-row { display: flex; gap: 8px; }
+.field-row .field { flex: 1 1 auto; min-width: 0; }
+.weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.weekday {
+  min-height: var(--tap);
+  border: 0;
+  border-radius: var(--r-small);
+  background: var(--bg);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: var(--fs-m);
+  cursor: pointer;
+}
+.weekday.is-on { background: var(--accent); color: #FFFFFF; font-weight: 700; }
+.dayoffs { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.dayoff {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg);
+  border-radius: var(--r-small);
+  padding: 0 0 0 14px;
+}
+.dayoff-name { flex: 1 1 auto; }
+.dayoff .btn-quiet { background: transparent; }
+.plan-target { margin: 0; font-size: var(--fs-l); font-weight: 700; }
+
+.badge-seen {
+  flex: 0 0 auto;
+  font-size: var(--fs-s);
+  font-weight: 700;
+  color: var(--muted);
+  background: var(--soft);
+  border-radius: 999px;
+  padding: 0 10px;
+}
+
+/* ------------------------------------------------------------ レッスンのタブ */
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  margin: 0 0 12px;
+  background: var(--track);
+  border-radius: 14px;
+}
+.tab {
+  min-height: var(--tap);
+  padding: 4px 2px;
+  font-family: inherit;
+  font-size: var(--fs-s);
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  line-height: 1.3;
+  white-space: pre-line;  /* 名前の中の改行だけで折り返す */
+}
+.tab.is-now { background: var(--panel); color: var(--accent); font-weight: 700; }
+
+/* 問題・カードの上の進捗の棒（段階6-21）。ホームの「今日やること」の棒と同じ太さ。解いた分を青く伸ばす */
+.qprogress { display: flex; align-items: center; gap: 10px; margin: 0 4px 10px; }
+.qbar { flex: 1; height: 6px; border-radius: 3px; background: var(--track); overflow: hidden; }
+.qbar-fill { height: 6px; border-radius: 3px; background: var(--accent); }
+.qprogress-num { font-size: var(--fs-s); color: var(--muted); white-space: nowrap; }
+@media (prefers-reduced-motion: no-preference) { .qbar-fill { transition: width 0.2s ease; } }
+/* 解く数のボタン（復習・苦手な問題・苦手なカード。2段×3つ。段階6-22） */
+.chooser { display: flex; flex-direction: column; gap: 10px; }
+.chooser-left { margin: 0; font-size: var(--fs-l); font-weight: 700; }
+/* はじめの画面の「何をするか」の1文（苦手なカード・苦手な問題・復習。段階6-22f） */
+.chooser-lead { margin: 0; font-size: var(--fs-m); line-height: 1.7; }
+.chooser-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+/* ------------------------------------------------------------ 問題 */
+
+.qtext {
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: var(--fs-m);
+  line-height: 1.9;
+  margin: 0;
+}
+
+.hl { background: var(--hl); color: inherit; border-radius: 3px; padding: 1px 2px; }
+
+.qmeta { font-size: var(--fs-s); color: var(--accent); font-weight: 700; margin: 0 0 8px; }
+
+.judge { font-size: var(--fs-l); font-weight: 700; margin: 4px 4px 10px; }
+.judge-ok { color: var(--ok); }
+.judge-ng { color: var(--ng); }
+
+.choices { display: flex; flex-direction: column; gap: 10px; }
+
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 14px 16px;
+  text-align: left;
+  font-size: var(--fs-m);
+  font-family: inherit;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--panel);
+  border: 2px solid transparent;
+  border-radius: var(--r-item);
+  cursor: pointer;
+}
+.choice-label {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: var(--soft);
+  font-weight: 700;
+  font-size: var(--fs-s);
+}
+.choice-text { flex: 1 1 auto; word-break: break-word; }
+.choice-body { flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.choice-mark { margin-top: 3px; }
+
+.choice.is-picked { border-color: var(--accent); background: var(--accent-weak); }
+.choice.is-picked .choice-label { background: var(--accent); color: #FFFFFF; }
+.choice.is-correct { background: var(--ok-weak); border-color: var(--ok); }
+.choice.is-correct .choice-label { background: var(--ok); color: #FFFFFF; }
+.choice.is-correct .choice-mark { color: var(--ok); }
+.choice.is-wrong { background: var(--ng-weak); border-color: var(--ng); }
+.choice.is-wrong .choice-label { background: var(--ng); color: #FFFFFF; }
+.choice.is-wrong .choice-mark { color: var(--ng); }
+/* 選ばなかった正解：白の地・緑の線・✓（段階6-22） */
+.choice.is-correct-miss { background: var(--panel); border-color: var(--ok); }
+.choice.is-correct-miss .choice-label { background: var(--panel); color: var(--ok); box-shadow: inset 0 0 0 1.5px var(--ok); }
+.choice.is-correct-miss .choice-mark { color: var(--ok); }
+.choice.is-static, .choice:disabled { cursor: default; color: var(--text); }
+.choice:disabled:not(.is-correct):not(.is-wrong) { color: #3B4453; }
+
+/* ② 確かめる：問いと、答えだけの選択肢 */
+.check-q { margin-bottom: 12px; }
+.check-card { margin: 16px 0 0; }
+.check-choice { align-items: center; min-height: 56px; }
+.check-choice .choice-text { font-weight: 700; }
+.check-choice .card-note { margin-top: 2px; }
+
+@keyframes popin {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+.choice.is-pop { animation: popin 260ms ease-out 1; }
+
+/* 間違えたときは短く揺らす */
+@keyframes shakex {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-8px); }
+  30% { transform: translateX(8px); }
+  45% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+.shake { animation: shakex 420ms ease-in-out 1; }
+
+/* ------------------------------------------------------------ カード */
+
+.card { border-radius: var(--r-item); overflow: hidden; }
+.card-side { padding: 16px; }
+.card-q { background: var(--q-face); }
+.card-a { background: var(--accent); color: #FFFFFF; }
+.card-label { font-size: var(--fs-s); color: var(--muted); }
+.card-a .card-label { color: var(--accent-on); }
+.card-head { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
+.card-front { white-space: pre-wrap; font-size: var(--fs-m); line-height: 1.8; }
+.card-back { white-space: pre-wrap; font-size: var(--fs-l); font-weight: 700; line-height: 1.5; }
+/* 補足：答えの下に小さく薄く（覚えるのは答え、と一目で分かるように） */
+.card-note { margin: 8px 0 0; font-size: var(--fs-s); line-height: 1.7; font-weight: 400; color: var(--muted); }
+.card-a .card-note { color: var(--accent-on); }
+.check-q .card-front { font-size: var(--fs-m); }
+
+.cardtap {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 裏返る動き（選択肢の無いカードだけ） */
+.flip { perspective: 1200px; }
+.flip-inner { position: relative; transform-style: preserve-3d; transition: transform 320ms ease; }
+.flip.is-back .flip-inner { transform: rotateY(180deg); }
+.flip-face {
+  border-radius: var(--r-item);
+  padding: 16px;
+  min-height: 140px;
+  background: #F5F7FA;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back { background: var(--accent); color: #FFFFFF; transform: rotateY(180deg); }
+.flip-back .card-label { color: var(--accent-on); }
+.flip-back .card-note { color: var(--accent-on); }
+.flip-face.is-away { position: absolute; top: 0; left: 0; right: 0; }
+.flip-hint { font-size: var(--fs-s); color: var(--muted); margin: 12px 0 0; }
+.flip.no-motion .flip-inner { transition: none; }
+
+/* ------------------------------------------------------------ この問題を解くカード */
+
+.cardsbox {
+  background: var(--panel);
+  border-radius: var(--r-panel);
+  padding: 20px;
+  margin: 24px 0 0;
+}
+.cardsbox-title { margin: 0 0 6px; font-size: var(--fs-l); font-weight: 700; }
+.cardpart { margin: 0 0 12px; }
+.cardpart:last-child { margin-bottom: 0; }
+.cardpart-title { margin: 0 0 8px; font-size: var(--fs-s); font-weight: 700; color: var(--accent); }
+
+/* カードを1枚ずつ囲む白い枠（濃い線。見本の案1。段階6-22） */
+.cardgroup {
+  margin: 14px 0 0;
+  padding: 14px 12px 12px;
+  background: var(--panel);
+  border: 2px solid #AEB9CC;
+  border-radius: 18px;
+}
+.cardgroup > .cardpart + .cardpart { margin-top: 14px; }
+
+/* 「✓ C を選べる」「✕ A は不正解」と、その下の理由（段階6-22） */
+.verdict { margin-top: 14px; padding: 10px 12px; border-radius: var(--r-small); font-size: var(--fs-s); line-height: 1.7; }
+.verdict.is-ok { background: var(--ok-weak); }
+.verdict.is-ng { background: var(--ng-weak); }
+.verdict-label { display: flex; align-items: center; gap: 4px; margin: 0; font-weight: 700; }
+.verdict.is-ok .verdict-label { color: var(--ok); }
+.verdict.is-ng .verdict-label { color: var(--ng); }
+.verdict-reason { margin: 4px 0 0; color: var(--text); word-break: break-word; }
+.cardgroup > .verdict { margin-top: 12px; }
+.verdict-only + .verdict-only, .cardgroup + .verdict-only, .verdict-only + .cardgroup { margin-top: 12px; }
+
+/* ほかの選択肢が違う理由：上のカードのあとに、区切りの線と小さな見出しを置いて並べる */
+.cardsbox-others { margin-top: 24px; padding-top: 18px; box-shadow: 0 -1px 0 var(--soft); }
+.cardsbox-others > .cardgroup:first-of-type, .cardsbox-others > .verdict-only:first-of-type { margin-top: 0; }
+.cardsbox-others > .verdict-only .verdict { margin-top: 0; }
+.cardsbox-subtitle { margin: 0 0 4px; font-size: var(--fs-m); font-weight: 700; }
+.cardsbox-others .cardsbox-subtitle { margin-bottom: 12px; }
+
+/* 該当箇所：「問題文｜カード」の2列の表 */
+.pairs {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: var(--fs-s);
+  line-height: 1.6;
+  border-radius: var(--r-small);
+  overflow: hidden;
+  background: #F5F7FA;
+}
+.pairs th {
+  text-align: left;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 8px 12px;
+  background: #E9EDF3;
+}
+.pairs td { padding: 10px 12px; vertical-align: top; word-break: break-word; }
+.pairs tr + tr td { box-shadow: 0 -1px 0 #E1E6EE; }
+
+/* 用語のリンク（答えたあとの解説の画面だけ。控えめな点線の下線。段階6-22） */
+.term {
+  text-decoration: underline dotted var(--accent) 2px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.term:hover { background: var(--accent-weak); }
+.term:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* カードの答え（青い地）の上では、白い点線にする */
+.card-a .term { text-decoration-color: rgba(255, 255, 255, 0.8); }
+.card-a .term:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* 用語の説明（画面の下から出す。外を押すか「閉じる」で消える） */
+.sheet-layer { position: fixed; inset: 0; z-index: 40; }
+.sheet-backdrop { position: absolute; inset: 0; background: rgba(18, 24, 38, 0.32); }
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 720px;
+  max-height: 72vh;
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: 18px 20px calc(20px + env(safe-area-inset-bottom));
+  background: var(--panel);
+  border-radius: var(--r-panel) var(--r-panel) 0 0;
+  box-shadow: 0 -6px 24px rgba(18, 24, 38, 0.16);
+}
+.sheet.is-motion { animation: sheet-up 0.22s ease-out; }
+@keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.sheet-head { display: flex; align-items: flex-start; gap: 12px; }
+.sheet-title { flex: 1 1 auto; margin: 6px 0 0; font-size: var(--fs-l); line-height: 1.5; }
+.sheet-close { flex: 0 0 auto; min-height: 40px; padding: 6px 14px; font-size: var(--fs-s); }
+.term-aliases { margin: 2px 0 0; font-size: var(--fs-s); color: var(--muted); }
+.term-desc { margin: 10px 0 0; font-size: var(--fs-m); line-height: 1.8; }
+.term-related { margin-top: 14px; }
+.term-related-title { margin: 0 0 6px; font-size: var(--fs-s); font-weight: 700; color: var(--muted); }
+.term-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.term-chip {
+  min-height: 36px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--accent-weak);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: var(--fs-s);
+  font-weight: 700;
+  cursor: pointer;
+}
+.term-chip:hover { text-decoration: underline; }
+
+/* ------------------------------------------------------------ 用語集（段階6-22） */
+
+.glossary-searchbox { position: relative; margin: 0 0 16px; }
+.glossary-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.glossary-search { padding-left: 40px; }
+.gcat { padding: 16px 20px; }
+.gcat-title { display: flex; align-items: baseline; gap: 8px; margin: 0 0 4px; font-size: var(--fs-l); }
+.gcat-count { font-size: var(--fs-s); font-weight: 400; color: var(--muted); }
+.gterm { padding: 14px 0; box-shadow: 0 -1px 0 var(--soft); border-radius: 4px; outline: none; }
+.gterm:first-of-type { box-shadow: none; }
+.gterm-head { margin: 0; font-size: var(--fs-m); font-weight: 700; }
+.gterm .term-desc { margin-top: 6px; font-size: var(--fs-s); }
+.gterm.is-flash { background: var(--accent-weak); box-shadow: 0 0 0 8px var(--accent-weak); }
+@media (prefers-reduced-motion: no-preference) { .gterm { transition: background 0.6s ease, box-shadow 0.6s ease; } }
+
+/* ------------------------------------------------------------ 「クリア！」「合格！」 */
+
+.banner { text-align: center; margin: 32px 0 24px; }
+.banner-word {
+  display: inline-block;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ok);
+}
+.banner-word.is-test { color: var(--test); }
+
+@keyframes bouncein {
+  0% { transform: scale(0.7); opacity: 0; }
+  55% { transform: scale(1.08); opacity: 1; }
+  80% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+.banner-word.is-motion { animation: bouncein 520ms ease-out 1; }
+
+/* ------------------------------------------------------------ 結果 */
+
+.result { text-align: left; }
+.result-score { font-size: var(--fs-l); font-weight: 700; margin: 0; }
+.result-line { font-size: var(--fs-s); color: var(--muted); margin: 2px 0 0; }
+
+/* テストのはじめの画面の、合格の決まりの1文（段階6-22c） */
+.test-rule { font-size: var(--fs-m); line-height: 1.7; margin: 0 0 12px; }
+/* 「正解した問題」の進捗の棒（章末テスト。段階6-22c） */
+.panel .qprogress { margin: 6px 0 2px; }
+
+.review-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+.review-pos { font-size: var(--fs-s); color: var(--muted); }
+.review .qtext { margin-bottom: 12px; }
+.review .qface { background: var(--q-face); border-radius: var(--r-item); padding: 16px; margin: 0 0 12px; }
+.review .qface .qtext { margin-bottom: 0; }
+.review .choice { background: var(--bg); }
+.review .choice.is-correct { background: var(--ok-weak); }
+.review .choice.is-wrong { background: var(--ng-weak); }
+.review .choice.is-correct-miss { background: var(--panel); }
+.review .cardsbox { padding: 16px 0 0; margin-top: 16px; }
+
+.rows { display: flex; flex-direction: column; gap: 6px; }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: var(--tap);
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--r-small);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: var(--fs-s);
+  text-align: left;
+  cursor: pointer;
+}
+.row-name { flex: 1 1 auto; }
+/* テストの見直しの一覧の行（段階6-21）：番号・問題文の頭と、「選んだ答え D ／ 正解 A」（段階6-22） */
+.review-row { flex-direction: column; align-items: flex-start; gap: 2px; }
+.review-answer { font-size: var(--fs-s); color: var(--muted); }
+.review-page .review-pos { margin: 0 0 8px; font-size: var(--fs-s); color: var(--muted); }
+
+/* ------------------------------------------------------------ 使い方 */
+
+.helplist { margin: 0; }
+.help-term { font-size: var(--fs-m); font-weight: 700; color: var(--accent); margin: 14px 0 0; }
+.help-term:first-child { margin-top: 0; }
+.help-body { font-size: var(--fs-s); margin: 2px 0 0 0; }
+
+/* ------------------------------------------------------------ 動きを減らす設定 */
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-inner { transition: none; }
+  .shake { animation: none; }
+  .choice.is-pop { animation: none; }
+  .banner-word.is-motion { animation: none; }
+  .toast { transition: none; }
+  .sheet.is-motion { animation: none; }
+  * { scroll-behavior: auto; }
+}
+
+/* ------------------------------------------------------------ PC */
+
+@media (min-width: 600px) {
+  .dialog-btns { justify-content: flex-end; }
+  .dialog-btns .btn { flex: 0 0 auto; min-width: 140px; }
+  .qactions { flex-direction: row; }
+  .qactions.qactions-stack { flex-direction: column; }
+  .main { padding: 8px 16px 56px; }
+  .sticky-bar { margin-bottom: -56px; }
+  .tab { font-size: var(--fs-m); }
+  .banner-word { font-size: 56px; }
+}

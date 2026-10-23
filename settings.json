@@ -1,0 +1,27 @@
+{
+  "pass_rate": 0.9,
+  "final_test": {
+    "question_count": 65
+  },
+  "shuffle_choices_in_test": true,
+  "weak_questions": {
+    "wrong_times_to_add": 1,
+    "correct_in_a_row_to_remove": 1
+  },
+  "weak_cards": {
+    "wrong_times_to_add": 1,
+    "correct_in_a_row_to_remove": 2
+  },
+  "check": {
+    "retry_after_cards": 3
+  },
+  "practice": {
+    "retry_after_questions": 3
+  },
+  "plan": {
+    "day_start_hour": 4,
+    "mock_days_before_exam": 3,
+    "review_after_days": [1, 7],
+    "chapter_review_repeat_days": 14
+  }
+}
