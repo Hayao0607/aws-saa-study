@@ -1,5 +1,5 @@
 // 画面を組み立てる小さな部品。見た目の決まりは css/style.css にある。
-import { displayLabel } from './logic/labels.js?v=d5cfdb6c3a';
+import { displayLabel } from './logic/labels.js?v=dc64bc235b';
 
 export { displayLabel };
 
@@ -344,7 +344,8 @@ export function stickyBar(children) {
 
 // 確認は、画面の中に重ねて出すウィンドウ（alert・confirm は使わない）。
 // アプリ全体の確認は、すべてこの形で出す。
-// opts: message, yesLabel, onYes, noLabel, onNo, danger（はいのボタンを赤くするか）
+// opts: message, yesLabel, onYes, noLabel, onNo, danger（はいのボタンを赤くするか）、
+//       single（true なら yesLabel のボタン1つだけ。知らせるだけのとき。段階6-22j）
 export function showDialog(opts) {
   const node = document.getElementById('dialog');
   if (!node) return;
@@ -356,9 +357,10 @@ export function showDialog(opts) {
   const onKey = (e) => {
     if (e.key === 'Escape') { close(); if (opts.onNo) opts.onNo(); }
   };
-  const yes = button(opts.yesLabel, () => { close(); opts.onYes(); },
+  const yes = button(opts.yesLabel, () => { close(); if (opts.onYes) opts.onYes(); },
     'btn ' + (opts.danger ? 'btn-danger' : 'btn-main'));
-  const no = button(opts.noLabel || 'やめる', () => { close(); if (opts.onNo) opts.onNo(); }, 'btn btn-quiet');
+  const no = opts.single ? null
+    : button(opts.noLabel || 'やめる', () => { close(); if (opts.onNo) opts.onNo(); }, 'btn btn-quiet');
   clear(node).appendChild(el('div', {
     class: 'dialog-box', role: 'alertdialog', 'aria-modal': 'true', 'aria-labelledby': 'dialog-msg',
   }, [

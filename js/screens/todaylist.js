@@ -1,7 +1,7 @@
 // 今日やることの行の中身（ホームの一覧が使う。段階6-21。終わりの画面の「次へ」は段階6-22e で消した）。
 // 行ごとに、行の頭の小さな言葉・名前・残りの問題数・行き先・済かどうかを返す。データに無いものは出さない。
-import { isUnitDone } from '../logic/progress.js?v=d5cfdb6c3a';
-import { testKey } from '../logic/plan.js?v=d5cfdb6c3a';
+import { isUnitDone } from '../logic/progress.js?v=dc64bc235b';
+import { testKey } from '../logic/plan.js?v=dc64bc235b';
 
 // 1行の中身：{ key, kind, name, left, leftText, href, done, test }
 // 章末テストは「章末テスト　（章名）　あと◯問」（「合格まで」の数。はじめて受ける前は章の問題数）、

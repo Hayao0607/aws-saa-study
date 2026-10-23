@@ -225,6 +225,17 @@ a { color: inherit; }
 .notice-warn { background: var(--ng-weak); color: var(--ng); font-weight: 700; }
 .notice-strong { background: var(--ok-weak); color: var(--ok); font-weight: 700; }
 
+/* 記録を移すページ（段階6-22j） */
+.transfer-lead { margin: 0 0 12px; line-height: 1.7; }
+.steps { margin: 0 0 4px; padding-left: 1.4em; line-height: 1.7; }
+.steps li { margin-bottom: 6px; }
+.transfer-note { margin-top: 14px; }
+/* 画面には出さないが、押したりファイルを選ばせたりするための部品 */
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
 .host { display: block; }
 
 /* ------------------------------------------------------------ ボタン */
@@ -276,6 +287,9 @@ a { color: inherit; }
 .sticky-inner .btn-quiet { background: var(--panel); }
 .sticky-row { flex-direction: row; }
 .sticky-row .btn { flex: 1 1 0; }
+/* ① 覚える：中身の場所を画面の下まで伸ばし、帯をいちばん下に置く（カードの長さで帯の位置が動かない。段階6-22i） */
+.memo-host { display: flex; flex-direction: column; }
+.memo-host > .sticky-bar { margin-top: auto; }
 
 /* ------------------------------------------------------------ 印・進みの帯 */
 

@@ -4,13 +4,13 @@
 // （移ると、その演習は最初からになる）。
 import {
   el, clear, button, cardFaces, heading, banner, progress, prefersReducedMotion, showDialog,
-  backToCategory,
-} from '../ui.js?v=d5cfdb6c3a';
-import { runQuestions } from './quizrun.js?v=d5cfdb6c3a';
-import { prepareCheck, renderCheckCard, isMissed } from './checkcard.js?v=d5cfdb6c3a';
-import { MARK_ALL, cardsForCheckCard } from '../logic/weakcards.js?v=d5cfdb6c3a';
-import { shuffled } from '../logic/shuffle.js?v=d5cfdb6c3a';
-import { isBlockTestDue, isSeenBefore } from '../logic/progress.js?v=d5cfdb6c3a';
+  backToCategory, stickyBar,
+} from '../ui.js?v=dc64bc235b';
+import { runQuestions } from './quizrun.js?v=dc64bc235b';
+import { prepareCheck, renderCheckCard, isMissed } from './checkcard.js?v=dc64bc235b';
+import { MARK_ALL, cardsForCheckCard } from '../logic/weakcards.js?v=dc64bc235b';
+import { shuffled } from '../logic/shuffle.js?v=dc64bc235b';
+import { isBlockTestDue, isSeenBefore } from '../logic/progress.js?v=dc64bc235b';
 
 // タブの字は、スマホの幅（1つ85px）に収めるため2行にし、かっこは半角にする。
 const TABS = ['① 覚える', '② 確かめる', '③ 演習\n(ヒントあり)', '④ 演習\n(ヒントなし)'];
@@ -82,7 +82,8 @@ export function render(ctx, root, params) {
 
   // タブを押したとき。③・④ で1問以上答えていれば、画面の中に重ねて確かめる。
   function askTab(next) {
-    if (next === tab) return;
+    // いまのタブを押したときは何もしない。① だけは、見ているカードから1枚目に戻る（段階6-22i）
+    if (next === tab && next !== 1) return;
     if ((tab === 3 || tab === 4) && answeredInRun > 0) {
       showDialog({
         message: LEAVE_TAB_MESSAGE,
@@ -98,8 +99,10 @@ export function render(ctx, root, params) {
   function goTab(next) {
     tab = next;
     answeredInRun = 0;
-    if (tab === 1) showMemorize();
-    else if (tab === 2) startCheck();
+    if (tab === 1) {
+      cardIndex = 0; // ① のタブを押したら、いつも1枚目から（段階6-22i）
+      showMemorize();
+    } else if (tab === 2) startCheck();
     else if (tab === 3) startPractice();
     else startFinish();
     window.scrollTo(0, 0);
@@ -131,24 +134,33 @@ export function render(ctx, root, params) {
     }
     // 進捗の棒は、いま見ているカードまでを埋める（最後のカードでいっぱい。段階6-22g）
     at.appendChild(progress(cardIndex + 1, cards.length, cardIndex + 1));
-    // 途中は「前へ」「次へ」だけ。最後のカードは「次へ」の場所を「② 確かめるへ」にし、
-    // その下に控えめな「もう一度見る」（1枚目に戻る。③ の終わり方にそろえる。段階6-22g）
-    const last = cardIndex + 1 >= cards.length;
     at.appendChild(el('section', { class: 'panel' }, [
       cardFaces(item.card, { seenBefore: item.seenBefore, note: true }),
-      el('div', { class: 'qactions qactions-row' }, [
-        el('button', {
-          class: 'btn btn-quiet', type: 'button', disabled: cardIndex === 0,
-          onClick: () => { cardIndex -= 1; showMemorize(); },
-        }, '前へ'),
-        last
-          ? button('② 確かめるへ', () => goTab(2), 'btn btn-main')
-          : button('次へ', () => { cardIndex += 1; showMemorize(); }, 'btn btn-main'),
-      ]),
-      last ? el('div', { class: 'qactions' }, [
-        button('もう一度見る', () => { cardIndex = 0; showMemorize(); }, 'btn btn-quiet'),
-      ]) : null,
     ]));
+    // 「前へ」「次へ」（最後のカードは「前へ」「② 確かめるへ」）は、③ ④ と同じ下に固定した帯に入れる（段階6-22i）。
+    // 1枚目に戻るときは、上のタブの「① 覚える」を押す（「もう一度見る」は置かない）。
+    // 「前へ」「次へ」で移ったら、画面のいちばん上から出す（③ ④ と同じ。段階6-22j）
+    const last = cardIndex + 1 >= cards.length;
+    const prev = el('button', {
+      class: 'btn btn-quiet', type: 'button', disabled: cardIndex === 0,
+      onClick: () => { cardIndex -= 1; showMemorize(); window.scrollTo(0, 0); },
+    }, '前へ');
+    const bar = stickyBar([
+      prev,
+      last
+        ? button('② 確かめるへ', () => goTab(2), 'btn btn-main')
+        : button('次へ', () => { cardIndex += 1; showMemorize(); window.scrollTo(0, 0); }, 'btn btn-main'),
+    ]);
+    bar.firstChild.classList.add('sticky-row');
+    at.appendChild(bar);
+    // カードが短くても帯が画面の下に来るよう、中身の場所を画面の下まで伸ばす（帯は中身の最後に置くので、
+    // カードが長いときは、スクロールすればカードの最後まで読め、帯に隠れたままにならない）。
+    // ページの下の余白（.main の padding-bottom。帯の下の負の余白で打ち消している分）を引き、短いカードではスクロールしないようにする
+    at.classList.add('memo-host');
+    const main = at.closest('.main');
+    const padBottom = main ? parseFloat(window.getComputedStyle(main).paddingBottom) || 0 : 0;
+    const top = at.getBoundingClientRect().top + window.scrollY;
+    at.style.minHeight = 'calc(100dvh - ' + Math.round(top + padBottom) + 'px)';
   }
 
   // ---------------------------------------------------------------- ② 確かめる

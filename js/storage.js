@@ -1,13 +1,13 @@
 // 学習の記録の保存と読み出し。保存に触るのは、このファイルだけ。
 // 保存先を変えるときは、ここだけを直す。
 // 1つのキーに JSON で入れる。形を変えたら js/logic/migrate.js の VERSION を上げる。
-import { VERSION, blankState, migrateState, needsMigration } from './logic/migrate.js?v=d5cfdb6c3a';
-import { pickKnown } from './logic/known.js?v=d5cfdb6c3a';
-import { applyAnswer, applyRetryAnswer } from './logic/weak.js?v=d5cfdb6c3a';
-import { markCards, applyPractice } from './logic/weakcards.js?v=d5cfdb6c3a';
+import { VERSION, blankState, migrateState, needsMigration } from './logic/migrate.js?v=dc64bc235b';
+import { pickKnown } from './logic/known.js?v=dc64bc235b';
+import { applyAnswer, applyRetryAnswer } from './logic/weak.js?v=dc64bc235b';
+import { markCards, applyPractice } from './logic/weakcards.js?v=dc64bc235b';
 import {
   reviewName, applyReviewAnswer, applyBlockTestAnswer,
-} from './logic/plan.js?v=d5cfdb6c3a';
+} from './logic/plan.js?v=dc64bc235b';
 
 const KEY = 'aws-saa-study';
 
@@ -104,7 +104,7 @@ function persist() {
 // ---------------------------------------------------------------- 書き込み
 
 // レッスンの完了。date は完了した日。reviews を渡せば、その復習の予定日を残す
-// （予定があるときだけ。前に完了していたレッスンは、完了した日も復習も変えない）。
+// （スケジュールが無いときも渡す。段階6-22h。前に完了していたレッスンは、完了した日も復習も変えない）。
 // questionIds：そのレッスンの問題（復習の残りの問題にする。段階6-21）。
 export function setUnitDone(unitId, date, reviews, questionIds) {
   const s = rawState();
@@ -122,7 +122,7 @@ export function setUnitDone(unitId, date, reviews, questionIds) {
 }
 
 // 章末テストの合格（「合格まで」が0になった。段階6-22c）。chapter は、初めて合格したときの復習のまとめ方
-// （js/logic/plan.js の chapterReviewOnPass の結果。予定が無いとき・2回目以降は null）：
+// （js/logic/plan.js の chapterReviewOnPass の結果。2回目以降は null）：
 // 消す復習を終えたことにし、章の復習の予定日と残りの問題（blockQuestionIds）を残す（段階6-18・6-21）。
 export function addBlockTestPass(blockId, chapter, blockQuestionIds) {
   const s = rawState();
@@ -228,7 +228,8 @@ export function answerReviewQuestion(questionId, correct, date, rule, look) {
   return result.pool;
 }
 
-// 予定を保存する（null で予定をやめる。やめたときは、今日の一覧と復習の予定も消す）。
+// 予定を保存する（null でスケジュールを削除する。削除したときは、今日の一覧と分野テストのくり返しの予定を消す。
+// 復習の予定・残り・済んだ日（reviews・blockReviews・reviewLeft・reviewDoneAt）は消さない。段階6-22h）。
 export function setPlan(plan) {
   const s = rawState();
   s.plan = plan ? {
@@ -238,10 +239,6 @@ export function setPlan(plan) {
   } : null;
   if (!plan) {
     s.today = null;
-    s.reviews = {};
-    s.blockReviews = {};
-    s.reviewLeft = {};
-    s.reviewDoneAt = {};
     s.catTestNext = {};
   }
   persist();
@@ -311,6 +308,22 @@ export function markWeakCards(cardIds) {
 export function recordWeakCardPractice(cardId, correct, rule) {
   const s = rawState();
   s.cards = applyPractice(s.cards, cardId, !!correct, rule);
+  persist();
+}
+
+// 記録を移す（段階6-22j）：書き出す中身。保存している記録そのまま（画面用に、いまのデータに無いIDを除いたものではない）。
+// 書き出しで記録は変えない。
+export function exportState() {
+  return JSON.parse(JSON.stringify(rawState()));
+}
+
+// 記録を移す（段階6-22j）：読み込んだ記録で、保存している記録を置き換える。
+// 開いたときと同じ移し替え（migrateState。版7以前の記録は今の形に移す）を通してから保存し、
+// 覚えている記録・画面用の記録も作り直す。読み込む前の確かめ（版など）は呼ぶ側で行う。
+export function replaceState(raw) {
+  state = migrateState(raw, migrateOpts);
+  migrated = false;
+  view = null;
   persist();
 }
 

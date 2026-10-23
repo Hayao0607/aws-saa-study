@@ -1,10 +1,15 @@
 // スケジュールのページ。受験日・勉強する曜日・休む日を決め、1日に解く問題の目安を出す。
 // 最初にスケジュールを立てるときも、立て直すときも、ここで行う。
 // 保存したら、その場で目安を出し、今日の一覧も作り直す。
-// 受験日が未定の人は、仮の日付を入れて使う（スケジュールをやめる操作は置かない）。
-import { el, clear, button, heading, toast, fieldError, BACK_HOME } from '../ui.js?v=d5cfdb6c3a';
-import { setPlan } from '../storage.js?v=d5cfdb6c3a';
-import { dailyTarget, isDateKey } from '../logic/plan.js?v=d5cfdb6c3a';
+// スケジュールがあるときは、ページのいちばん下に控えめな「スケジュールを削除する」（段階6-22h）。
+// 削除しても学習の記録と復習は消えない（今日の一覧と分野テストのくり返しの予定は消える）。
+// 削除したあとも、受験日などを入れて保存すれば、また立てられる。
+import { el, clear, button, heading, toast, fieldError, showDialog, BACK_HOME } from '../ui.js?v=dc64bc235b';
+import { setPlan } from '../storage.js?v=dc64bc235b';
+import { dailyTarget, isDateKey, planStatus } from '../logic/plan.js?v=dc64bc235b';
+
+const DELETE_MESSAGE = 'スケジュールを削除しますか？今日やることと分野テストのくり返しの予定がなくなります。'
+  + '学習の記録と復習は消えません。';
 
 // 月〜日の順に並べる（値は 0＝日 … 6＝土）。
 const WEEKDAYS = [
@@ -123,6 +128,28 @@ export function render(ctx, root) {
         el('p', { class: 'plan-target', text: perDay + '問' }),
       ]));
     }
+
+    // ---- スケジュールを削除する（スケジュールがあるときだけ。受験日をすぎたときは出さない）
+    if (planStatus(plan, today) === 'active') {
+      node.appendChild(el('div', { class: 'qactions' }, [
+        button('スケジュールを削除する', askDelete, 'btn btn-quiet'),
+      ]));
+    }
+  }
+
+  // 画面の中に重ねて確かめる。「削除する」でスケジュールを削除し、ホームに戻る。
+  function askDelete() {
+    showDialog({
+      message: DELETE_MESSAGE,
+      yesLabel: '削除する',
+      noLabel: '戻る',
+      danger: true,
+      onYes: () => {
+        setPlan(null);
+        window.location.hash = '#/';
+        toast('スケジュールを削除しました。');
+      },
+    });
   }
 
   function save() {

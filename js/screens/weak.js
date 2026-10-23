@@ -3,11 +3,11 @@
 // 答えるたびに記録する（間違えたら苦手な問題のまま、正解したら外れる。段階6-21 第5-4節）。
 // 終わりの画面は「残りの苦手な問題（◯問）を解く」。全問正解で苦手な問題が0問になったら「苦手な問題はなくなりました」。
 // 「間違えた◯問をもう一度」は置かない。
-import { el, clear, heading, banner, countChooser, BACK_HOME } from '../ui.js?v=d5cfdb6c3a';
-import { runQuestions } from './quizrun.js?v=d5cfdb6c3a';
-import { shuffled } from '../logic/shuffle.js?v=d5cfdb6c3a';
-import { MARK_ALL } from '../logic/weakcards.js?v=d5cfdb6c3a';
-import { weakRule } from '../logic/weak.js?v=d5cfdb6c3a';
+import { el, clear, heading, banner, countChooser, BACK_HOME } from '../ui.js?v=dc64bc235b';
+import { runQuestions } from './quizrun.js?v=dc64bc235b';
+import { shuffled } from '../logic/shuffle.js?v=dc64bc235b';
+import { MARK_ALL } from '../logic/weakcards.js?v=dc64bc235b';
+import { weakRule } from '../logic/weak.js?v=dc64bc235b';
 
 export function render(ctx, root) {
   // title：見出し（はじめの画面だけ「苦手な問題　8問」。段階6-22f）

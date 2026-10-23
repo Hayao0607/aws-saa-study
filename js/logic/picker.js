@@ -1,5 +1,5 @@
 // 模擬試験と分野テストの問題の選び方。画面から切り離した関数。
-import { shuffled } from './shuffle.js?v=d5cfdb6c3a';
+import { shuffled } from './shuffle.js?v=dc64bc235b';
 
 // テストでの各問題の記録（marks）から、優先の順に3つの組に分ける。
 // marks: { 問題ID: 1（前回正解） | 0（前回不正解） }。入っていなければ、まだ出ていない。

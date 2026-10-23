@@ -156,12 +156,23 @@ export function nextChapterReviewDate(plan, doneDate, rule) {
   return next;
 }
 
+// 章の復習を終えた日から、次の章の復習の予定日（段階6-22h）。
+// スケジュールがあれば nextChapterReviewDate と同じ（模擬試験の日かそれより後なら null）。
+// スケジュールが無い（予定なし・受験日をすぎた）ときは、終えた日の chapter_review_repeat_days 日後（暦の日数どおり。終わりは無い）。
+// 分野テストのくり返しには使わない（スケジュールが無いときは入れないため、nextChapterReviewDate を使う）。
+export function nextChapterRepeatDate(plan, doneDate, rule) {
+  if (planStatus(plan, doneDate) === 'active') return nextChapterReviewDate(plan, doneDate, rule);
+  return addDays(doneDate, rule.chapterRepeatDays);
+}
+
 // レッスンを完了した日から、復習の予定日を作る（{ d1: 日付, d7: 日付 }）。
-// その日が学ぶ日でなければ、次の学ぶ日にする。
+// スケジュールがあれば、その日が学ぶ日でなければ次の学ぶ日にする。
+// スケジュールが無い（予定なし・受験日をすぎた）ときは、完了した日の1日後・7日後（暦の日数どおり。段階6-22h）。
 export function reviewDates(plan, doneDate, rule) {
+  const active = planStatus(plan, doneDate) === 'active';
   const out = {};
   for (const n of rule.reviewAfterDays) {
-    out['d' + n] = nextStudyDay(plan, addDays(doneDate, n));
+    out['d' + n] = active ? nextStudyDay(plan, addDays(doneDate, n)) : addDays(doneDate, n);
   }
   return out;
 }
@@ -172,13 +183,13 @@ export function reviewKeys(rule) {
 }
 
 // 章末テストに初めて合格したときの、復習のまとめ方（段階6-18）。
-// 予定があり、まだ合格していない章のときだけ { drop, reviewDate } を返す（それ以外は null）。
+// まだ合格していない章のときだけ { drop, reviewDate } を返す（それ以外は null）。
 //   drop：消す復習（[{ id: レッスンID, keys: [...] }]）。最初の間隔の復習は、予定日が合格した日より後なら残し、
 //         合格した日かそれより前なら消す（章末テストで同じ問題を解いたため）。それより後の間隔の復習は、すべて消す
-//   reviewDate：章の復習の予定日（合格した日の、最後の間隔の後。学ぶ日でなければ次の学ぶ日）
+//   reviewDate：章の復習の予定日（合格した日の、最後の間隔の後。スケジュールがあれば、学ぶ日でなければ次の学ぶ日。
+//               スケジュールが無いときは暦の日数どおり。段階6-22h）
 export function chapterReviewOnPass(state, block, date, rule) {
   if (blockPassed(state, block.id)) return null; // 2回目以降の合格（受け直しを含め、すでに合格している章）
-  if (planStatus(state.plan, date) !== 'active') return null; // 予定が無いときの合格
   const first = reviewKeys(rule)[0];
   const drop = [];
   for (const unit of block.units) {
@@ -187,7 +198,9 @@ export function chapterReviewOnPass(state, block, date, rule) {
     if (keys.length) drop.push({ id: unit.id, keys });
   }
   const last = rule.reviewAfterDays[rule.reviewAfterDays.length - 1];
-  return { drop, reviewDate: nextStudyDay(state.plan, addDays(date, last)) };
+  const after = addDays(date, last);
+  const active = planStatus(state.plan, date) === 'active';
+  return { drop, reviewDate: active ? nextStudyDay(state.plan, after) : after };
 }
 
 
@@ -355,7 +368,7 @@ export function reviewPool(state, date, look) {
 // 山から1問答えた（段階6-21）。state を書き換える（呼ぶ側が保存する）。
 // その問題を、山に入っているすべての復習の残りから外す。残りが0になった復習は済にし、終えた日を記録する。
 // 章の復習を終えたら、終えた日から chapter_review_repeat_days 日後に次の章の復習を入れる
-// （模擬試験の日かそれより後になるときは入れない）。
+// （スケジュールがあれば、模擬試験の日かそれより後になるときは入れない。スケジュールが無ければ暦の日数どおり。nextChapterRepeatDate）。
 // 返す値：{ finished: [復習の名前], pool: 答えたあとの山の問題数 }
 export function applyReviewAnswer(state, questionId, date, rule, look) {
   if (!state.reviewLeft) state.reviewLeft = {};
@@ -374,7 +387,7 @@ export function applyReviewAnswer(state, questionId, date, rule, look) {
     if (r.kind === 'unit') {
       state.reviews[r.id][r.slot] = null;
     } else {
-      const next = nextChapterReviewDate(state.plan, date, rule);
+      const next = nextChapterRepeatDate(state.plan, date, rule);
       state.blockReviews[r.id] = next;
       if (next) state.reviewLeft[r.key] = (look.blockQuestions[r.id] || []).slice();
     }

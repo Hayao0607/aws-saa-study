@@ -1,10 +1,10 @@
 // 使い方の画面。レッスンの4つのタブとテスト、スケジュールを1行ずつ説明する。
 // 各画面には説明の文を出さない（説明はここにだけ置く）。
-import { el, clear, heading, BACK_HOME } from '../ui.js?v=d5cfdb6c3a';
-import { weakRule } from '../logic/weak.js?v=d5cfdb6c3a';
-import { weakCardRule } from '../logic/weakcards.js?v=d5cfdb6c3a';
-import { planRule, BLOCK_TEST_QUESTIONS, CATEGORY_TEST_QUESTIONS } from '../logic/plan.js?v=d5cfdb6c3a';
-import { passScoreFor } from '../logic/grade.js?v=d5cfdb6c3a';
+import { el, clear, heading, BACK_HOME } from '../ui.js?v=dc64bc235b';
+import { weakRule } from '../logic/weak.js?v=dc64bc235b';
+import { weakCardRule } from '../logic/weakcards.js?v=dc64bc235b';
+import { planRule, BLOCK_TEST_QUESTIONS, CATEGORY_TEST_QUESTIONS } from '../logic/plan.js?v=dc64bc235b';
+import { passScoreFor } from '../logic/grade.js?v=dc64bc235b';
 
 // 復習の日の言い方（1 → 翌日、7 → 1週間後、それ以外 → n日後）。
 function afterDays(n) {
@@ -54,11 +54,13 @@ export function render(ctx, root) {
       + '回で入ります。練習で ' + cardRule.correctInARowToRemove + '回続けて正解すると外れます。'],
     ['スケジュール', '受験日と勉強する曜日を決めると、ホームに今日やることが出ます。'],
     ['休む日', 'スケジュールのページで追加できます。量は次の日から自動で変わります。'],
-    ['復習', '学んだ' + reviewWhen + 'の問題が、今日やることの「復習　残り◯問」にまとまります。'],
+    // スケジュールが無ければ、ホームの「復習　残り◯問」にまとまる（段階6-22h）
+    ['復習', '学んだ' + reviewWhen + 'の問題が、今日やること（スケジュールが無ければホーム）の「復習　残り◯問」にまとまります。'],
     ['数を選ぶ', '復習・苦手な問題・苦手なカードは、5〜30問・全部から選んで、ランダムに解きます。'],
     ['復習の残り', '答えた分から残りが減ります。'],
     ['章の復習', '章末テストに合格すると、その章の' + afterDays(plan.reviewAfterDays[plan.reviewAfterDays.length - 1]) + 'の復習は「章の復習」にまとまります。'],
-    ['章の復習のくり返し', '章の復習を終えると、' + plan.chapterRepeatDays + '日ごとにくり返します。'],
+    ['章の復習のくり返し', '章の復習を終えると、' + plan.chapterRepeatDays + '日ごとにくり返します。スケジュールが無いときも、'
+      + plan.chapterRepeatDays + '日ごとに続きます。'],
     ['用語集', 'メニューの「用語集」で、分野ごとに用語を引けます。検索もできます。'],
     ['1日の区切り', '朝' + plan.dayStartHour + '時です。それより前は、前の日です。'],
   ];
@@ -74,6 +76,7 @@ export function render(ctx, root) {
   node.appendChild(el('section', { class: 'panel' }, [
     el('p', { class: 'note', text: '完了したレッスンには ✓、合格したテストには ★ と合格の回数が付きます。' }),
     el('p', { class: 'note', text: '途中でやめると、そのレッスン・その演習は最初からになります。復習とテストは、答えた分が残ります。' }),
-    el('p', { class: 'note', text: '学習の記録は、このブラウザに残ります。メニューの「学習の記録を消す」で消せます。' }),
+    el('p', { class: 'note', text: '学習の記録は、このブラウザに残ります。メニューの「学習の記録を消す」で消せます。'
+      + '別の端末へは、メニューの「記録を移す」で移せます。' }),
   ]));
 }

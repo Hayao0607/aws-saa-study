@@ -1,5 +1,5 @@
 // 起動、版の番号の確かめ、データの読み込み、画面の切り替え、上のメニュー、途中で離れるときの確認。
-import { el, clear, button, icon, showDialog, hideDialog, hideTermSheet } from './ui.js?v=d5cfdb6c3a';
+import { el, clear, button, icon, showDialog, hideDialog, hideTermSheet } from './ui.js?v=dc64bc235b';
 import {
   getState, isStorageAvailable, setKnownIds, clearAll,
   setUnitDone, saveToday,
@@ -7,37 +7,38 @@ import {
   setMigrationContext, addBlockTestPass, startCategoryTest, finishCategoryTest,
   answerBlockTestQuestion, finishBlockTestRound, answerCategoryTestQuestion,
   answerReviewQuestion, recordWeakPractice, recordRetryAnswer,
-} from './storage.js?v=d5cfdb6c3a';
-import { unitSequence, questionMarks, cardLessons } from './logic/progress.js?v=d5cfdb6c3a';
-import { knownIds } from './logic/known.js?v=d5cfdb6c3a';
-import { weakQuestionIds } from './logic/weak.js?v=d5cfdb6c3a';
-import { pickCategoryTest, pickBlockTest } from './logic/picker.js?v=d5cfdb6c3a';
-import { passScoreFor } from './logic/grade.js?v=d5cfdb6c3a';
-import { weakCardIds, weakCardRule } from './logic/weakcards.js?v=d5cfdb6c3a';
+} from './storage.js?v=dc64bc235b';
+import { unitSequence, questionMarks, cardLessons } from './logic/progress.js?v=dc64bc235b';
+import { knownIds } from './logic/known.js?v=dc64bc235b';
+import { weakQuestionIds } from './logic/weak.js?v=dc64bc235b';
+import { pickCategoryTest, pickBlockTest } from './logic/picker.js?v=dc64bc235b';
+import { passScoreFor } from './logic/grade.js?v=dc64bc235b';
+import { weakCardIds, weakCardRule } from './logic/weakcards.js?v=dc64bc235b';
 import {
-  planRule, dayKey, planStatus, reviewDates, computeToday, needsRecompute,
+  planRule, dayKey, reviewDates, computeToday, needsRecompute,
   reviewKeys, chapterReviewOnPass, reviewLookup, reviewPool,
   nextChapterReviewDate, categoryTestCount, categoryTestToday,
   blockTestLeft, blockTestStarted, blockTestSize,
-} from './logic/plan.js?v=d5cfdb6c3a';
-import * as home from './screens/home.js?v=d5cfdb6c3a';
-import * as helpScreen from './screens/help.js?v=d5cfdb6c3a';
-import * as categoryScreen from './screens/category.js?v=d5cfdb6c3a';
-import * as unitScreen from './screens/unit.js?v=d5cfdb6c3a';
-import * as testScreen from './screens/test.js?v=d5cfdb6c3a';
-import * as mockScreen from './screens/mock.js?v=d5cfdb6c3a';
-import * as weakScreen from './screens/weak.js?v=d5cfdb6c3a';
-import * as weakCardsScreen from './screens/weakcards.js?v=d5cfdb6c3a';
-import * as reviewPoolScreen from './screens/reviewpool.js?v=d5cfdb6c3a';
-import * as planScreen from './screens/plan.js?v=d5cfdb6c3a';
-import * as glossaryScreen from './screens/glossary.js?v=d5cfdb6c3a';
+} from './logic/plan.js?v=dc64bc235b';
+import * as home from './screens/home.js?v=dc64bc235b';
+import * as helpScreen from './screens/help.js?v=dc64bc235b';
+import * as categoryScreen from './screens/category.js?v=dc64bc235b';
+import * as unitScreen from './screens/unit.js?v=dc64bc235b';
+import * as testScreen from './screens/test.js?v=dc64bc235b';
+import * as mockScreen from './screens/mock.js?v=dc64bc235b';
+import * as weakScreen from './screens/weak.js?v=dc64bc235b';
+import * as weakCardsScreen from './screens/weakcards.js?v=dc64bc235b';
+import * as reviewPoolScreen from './screens/reviewpool.js?v=dc64bc235b';
+import * as planScreen from './screens/plan.js?v=dc64bc235b';
+import * as glossaryScreen from './screens/glossary.js?v=dc64bc235b';
+import * as transferScreen from './screens/transfer.js?v=dc64bc235b';
 
 const root = document.getElementById('app');
 const menuNode = document.getElementById('menu');
 const menuBtn = document.getElementById('menu-btn');
 
 // 版の番号（tools/stamp_version.py が書き換える。手で直さない。段階6-22b）
-const APP_VERSION = 'd5cfdb6c3a';
+const APP_VERSION = 'dc64bc235b';
 
 const LEAVE_MESSAGE = 'いま解いている問題は、最初からになります。移動しますか？';
 const CLEAR_MESSAGE = '学習の記録をすべて消して、最初の状態に戻します。消しますか？';
@@ -163,14 +164,13 @@ async function boot() {
       if (!force && !needsRecompute(state, now, settings)) return;
       saveToday(computeToday({ now, state, curriculum, settings }));
     },
-    // レッスンの完了。スケジュールがあれば、復習の予定日と残りの問題も残す。
+    // レッスンの完了。復習の予定日と残りの問題も残す（スケジュールが無いときは暦の日数どおり。段階6-22h）。
     completeUnit: (unitId) => {
       const date = dayKey(new Date(), rule);
-      const plan = getState().plan;
-      const reviews = planStatus(plan, date) === 'active' ? reviewDates(plan, date, rule) : null;
-      setUnitDone(unitId, date, reviews, look.unitQuestions[unitId]);
+      setUnitDone(unitId, date, reviewDates(getState().plan, date, rule), look.unitQuestions[unitId]);
     },
-    // 章末テストの合格（「合格まで」が0になった）。初めての合格で予定があれば、その章の復習をまとめる（段階6-18）。
+    // 章末テストの合格（「合格まで」が0になった）。初めての合格なら、その章の復習をまとめる
+    // （段階6-18。スケジュールが無いときも、暦の日数どおりにまとめる。段階6-22h）。
     passBlockTest: (blockId) => {
       const found = ctx.blockById.get(blockId);
       const date = dayKey(new Date(), rule);
@@ -270,6 +270,7 @@ async function boot() {
       { label: '苦手なカード（' + weakCardCount + '枚）', href: '#/weak-cards' },
       { label: '用語集', href: '#/glossary' },
       { label: 'スケジュール', href: '#/plan' },
+      { label: '記録を移す', href: '#/transfer' }, // 段階6-22j
       { label: '使い方', href: '#/help' },
     ];
     const items = links.map((item) => el('li', {}, [
@@ -317,6 +318,7 @@ async function boot() {
     if (parts[0] === 'weak') return { name: 'weak' };
     if (parts[0] === 'weak-cards') return { name: 'weakCards' };
     if (parts[0] === 'plan') return { name: 'plan' };
+    if (parts[0] === 'transfer') return { name: 'transfer' };
     return { name: 'home' };
   }
 
@@ -336,6 +338,7 @@ async function boot() {
     else if (r.name === 'weakCards') weakCardsScreen.render(ctx, root);
     else if (r.name === 'plan') planScreen.render(ctx, root);
     else if (r.name === 'glossary') glossaryScreen.render(ctx, root);
+    else if (r.name === 'transfer') transferScreen.render(ctx, root);
     else home.render(ctx, root);
     window.scrollTo(0, 0);
   }

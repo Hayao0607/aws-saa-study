@@ -1,9 +1,10 @@
 // ホームの画面。一番上に「今日やること」（スケジュールが無ければ「次のレッスン」と
-// 「スケジュールを立てる」）、その下に分野の一覧と、模擬試験・苦手な問題・苦手なカードの入口を置く。
+// 「スケジュールを立てる」。予定日が来た復習があれば、その上に「復習　残り◯問」。段階6-22h）、
+// その下に分野の一覧と、模擬試験・苦手な問題・苦手なカードの入口を置く。
 // 「学習の記録を消す」は上のメニューにある（段階6-9）。
-import { el, clear, doneMark, todoMark } from '../ui.js?v=d5cfdb6c3a';
-import { categoryStats, categoryTestPassCount, isUnitDone } from '../logic/progress.js?v=d5cfdb6c3a';
-import { todayEntries } from './todaylist.js?v=d5cfdb6c3a';
+import { el, clear, doneMark, todoMark } from '../ui.js?v=dc64bc235b';
+import { categoryStats, categoryTestPassCount, isUnitDone } from '../logic/progress.js?v=dc64bc235b';
+import { todayEntries } from './todaylist.js?v=dc64bc235b';
 
 // 次のレッスン（並び順で最初の、完了していないレッスン）の1行。
 function nextLessonRow(ctx, label) {
@@ -36,6 +37,16 @@ function todayRow(entry) {
   };
 }
 
+// スケジュールが無いとき（予定なし・受験日をすぎた）の復習の行（段階6-22h）。今日やることの復習の行と同じ見た目。
+// 今日までに予定日が来た復習が無ければ出さない。
+function reviewRow(ctx) {
+  const left = ctx.reviewPoolIds().length;
+  if (!left) return null;
+  return todayRow({
+    kind: '復習', name: '', left, leftText: '残り' + left + '問', href: '#/review', done: false, test: false,
+  }).node;
+}
+
 // 進みの帯（今日やることのうち、済んだ割合）。
 function progressBar(done, total) {
   const pct = total ? Math.round((done / total) * 100) : 0;
@@ -51,7 +62,7 @@ function todayBox(ctx) {
   const plan = state.plan;
   if (!plan) {
     return el('section', { class: 'panel today' }, [
-      el('div', { class: 'trows' }, [nextLessonRow(ctx, '次のレッスン')]),
+      el('div', { class: 'trows' }, [reviewRow(ctx), nextLessonRow(ctx, '次のレッスン')]),
       el('div', { class: 'qactions' }, [
         el('a', { class: 'btn btn-quiet', href: '#/plan' }, 'スケジュールを立てる'),
       ]),
@@ -61,7 +72,7 @@ function todayBox(ctx) {
   if (today.status === 'expired') {
     return el('section', { class: 'panel today' }, [
       el('p', { class: 'today-msg', text: '受験日をすぎました' }),
-      el('div', { class: 'trows' }, [nextLessonRow(ctx, '次のレッスン')]),
+      el('div', { class: 'trows' }, [reviewRow(ctx), nextLessonRow(ctx, '次のレッスン')]),
       el('div', { class: 'qactions' }, [
         el('a', { class: 'btn btn-quiet', href: '#/plan' }, 'スケジュールを立て直す'),
       ]),
