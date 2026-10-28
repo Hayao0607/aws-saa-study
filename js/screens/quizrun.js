@@ -4,10 +4,10 @@
 import {
   el, clear, button, textBlock, cardsBox, progress, displayLabel, prefersReducedMotion,
   stickyBar, scrollToJudge, answeredChoices, questionTerms,
-} from '../ui.js?v=dc64bc235b';
-import { shuffled } from '../logic/shuffle.js?v=dc64bc235b';
-import { isCorrect } from '../logic/grade.js?v=dc64bc235b';
-import { cardsForAnswer } from '../logic/weakcards.js?v=dc64bc235b';
+} from '../ui.js?v=10294e4f56';
+import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
+import { isCorrect } from '../logic/grade.js?v=10294e4f56';
+import { cardsForAnswer } from '../logic/weakcards.js?v=10294e4f56';
 
 // opts
 //   root            描く先の要素

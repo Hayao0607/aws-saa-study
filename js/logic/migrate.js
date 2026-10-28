@@ -1,6 +1,6 @@
 // 保存の形の移し替えと、読み出した中身の整え。画面から切り離した関数。
 // storage.js だけが呼ぶ。版が上がったときに、前の版の保存を新しい形へ移す。
-import { isDateKey, nextChapterReviewDate, reviewName } from './plan.js?v=dc64bc235b';
+import { isDateKey, nextChapterReviewDate, reviewName } from './plan.js?v=10294e4f56';
 
 export const VERSION = 8;
 

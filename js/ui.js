@@ -1,5 +1,5 @@
 // 画面を組み立てる小さな部品。見た目の決まりは css/style.css にある。
-import { displayLabel } from './logic/labels.js?v=dc64bc235b';
+import { displayLabel } from './logic/labels.js?v=10294e4f56';
 
 export { displayLabel };
 

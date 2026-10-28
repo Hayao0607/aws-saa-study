@@ -1,10 +1,10 @@
 // 使い方の画面。レッスンの4つのタブとテスト、スケジュールを1行ずつ説明する。
 // 各画面には説明の文を出さない（説明はここにだけ置く）。
-import { el, clear, heading, BACK_HOME } from '../ui.js?v=dc64bc235b';
-import { weakRule } from '../logic/weak.js?v=dc64bc235b';
-import { weakCardRule } from '../logic/weakcards.js?v=dc64bc235b';
-import { planRule, BLOCK_TEST_QUESTIONS, CATEGORY_TEST_QUESTIONS } from '../logic/plan.js?v=dc64bc235b';
-import { passScoreFor } from '../logic/grade.js?v=dc64bc235b';
+import { el, clear, heading, BACK_HOME } from '../ui.js?v=10294e4f56';
+import { weakRule } from '../logic/weak.js?v=10294e4f56';
+import { weakCardRule } from '../logic/weakcards.js?v=10294e4f56';
+import { planRule, BLOCK_TEST_QUESTIONS, CATEGORY_TEST_QUESTIONS } from '../logic/plan.js?v=10294e4f56';
+import { passScoreFor } from '../logic/grade.js?v=10294e4f56';
 
 // 復習の日の言い方（1 → 翌日、7 → 1週間後、それ以外 → n日後）。
 function afterDays(n) {
@@ -52,7 +52,8 @@ export function render(ctx, root) {
       + rule.correctInARowToRemove + '回' + (rule.correctInARowToRemove > 1 ? '続けて' : '') + '正解すると外れます。'],
     ['苦手なカード', '④・テスト・復習で間違えた問題のカードが、' + cardRule.wrongTimesToAdd
       + '回で入ります。練習で ' + cardRule.correctInARowToRemove + '回続けて正解すると外れます。'],
-    ['スケジュール', '受験日と勉強する曜日を決めると、ホームに今日やることが出ます。'],
+    // スケジュールが無ければ、ホームに次にやること（レッスン・章末テスト・分野テスト・模擬試験）が出る（段階6-22k）
+    ['スケジュール', '受験日と勉強する曜日を決めると、ホームに今日やることが出ます。無ければ、次にやることが出ます。'],
     ['休む日', 'スケジュールのページで追加できます。量は次の日から自動で変わります。'],
     // スケジュールが無ければ、ホームの「復習　残り◯問」にまとまる（段階6-22h）
     ['復習', '学んだ' + reviewWhen + 'の問題が、今日やること（スケジュールが無ければホーム）の「復習　残り◯問」にまとまります。'],

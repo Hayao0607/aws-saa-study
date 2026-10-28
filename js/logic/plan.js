@@ -18,7 +18,7 @@
 // 章末テスト（段階6-22c）：章に1つ。章の全問に1回ずつ正解したら合格。
 // 「合格まで」の問題（testLeft['block:章ID']。始めていなければ章の全問を章の並びのまま）を持ち、
 // 1回に「合格まで」の前から15問を出す（足りなければ、その章の苦手な問題 → その章のほかの問題で補う。js/logic/picker.js）。
-// 正解した問題は「合格まで」から外し、間違えた問題は「合格まで」のいちばん後ろに移す（補った問題を間違えたら後ろに入れる）。
+// 正解した問題は「合格まで」から外し、間違えた問題は「合格まで」のいちばん後ろに移す（補った問題は、正解でも間違いでも「合格まで」を変えない。段階6-22l）。
 // 「合格まで」が0になったら合格（記録は消し、次に受けるときはまた全問から）。
 // 分野テスト（段階6-22c）：分野ごとに1つ。1回に30問を選び（同じ日にその分野のテストで出た問題は除く）、
 // pass_rate をかけて切り上げた数（27問）以上の正解で合格。合格した日の chapter_review_repeat_days 日後
@@ -298,6 +298,34 @@ function stepPassed(state, step) {
   return catPassed(state, step.category.name);
 }
 
+// スケジュールが無いときのホームの「次にやること」（段階6-22k）。画面から切り離した関数。
+// 返す値：{ started, next, mock }
+//   started：始めたまま合格していない章末テスト（「合格まで」の記録を持つ章。カリキュラムの順。[step]）
+//   next：planSteps の順に見て、まだ終えていない最初のもの（step か null）。テストは前提がそろっているときだけ：
+//         章末テストは、その章のレッスンをすべて完了していること。分野テストは、その分野のレッスンをすべて完了していること
+//         （スケジュールがあるときと違い、同じ日に完了したレッスンでもよい）。前提がそろっていないテストは飛ばして次を見る。
+//         started に入っている章末テストは飛ばす（同じものを2行に出さない）。
+//         分野テストは、合格するまで（不合格でも）出る
+//   mock：すべてのレッスンを完了しているか（模擬試験の行を出す）
+export function homeNext(state, curriculum) {
+  const steps = planSteps(curriculum);
+  const units = steps.filter((s) => s.type === 'unit');
+  const allDone = (list) => list.every((s) => unitDone(state, s.unit.id));
+  const started = steps.filter((s) => s.type === 'block' && !blockPassed(state, s.block.id) && blockTestStarted(state, s.block.id));
+  let next = null;
+  for (const s of steps) {
+    if (stepPassed(state, s)) continue;
+    if (s.type === 'block') {
+      if (started.includes(s)) continue;
+      if (!allDone(units.filter((u) => u.block === s.block))) continue;
+    }
+    if (s.type === 'cat' && !allDone(units.filter((u) => u.category === s.category))) continue;
+    next = s;
+    break;
+  }
+  return { started, next, mock: units.length > 0 && allDone(units) };
+}
+
 // 分野テストの次のくり返しの予定日（無ければ null。段階6-22）。
 export function pendingCategoryTest(state, name) {
   const d = state.catTestNext && state.catTestNext[name];
@@ -421,13 +449,15 @@ export function blockTestSize(look, blockId) {
 }
 
 // 章末テストで1問答えた。state を書き換える（呼ぶ側が保存する）。
-// 正解：「合格まで」から外す（補った問題なら何もしない）。間違い：「合格まで」のいちばん後ろに移す（補った問題は後ろに入れる）。
+// 正解：「合格まで」から外す。間違い：「合格まで」のいちばん後ろに移す。
+// 補った問題（答えた時点で「合格まで」に入っていない問題）は、正解でも間違いでも「合格まで」を変えない（段階6-22l）。
 // 「合格まで」が0になったら合格（passed: true。記録は消し、次に受けるときは全問から）。
 // locked：同じ回の中で合格したあとの解答（「合格まで」を変えない）。
 export function applyBlockTestAnswer(state, blockId, questionId, correct, look, locked = false) {
   if (!state.testLeft) state.testLeft = {};
-  if (locked) return { left: blockTestLeft(state, blockId, look).length, passed: false };
-  let left = blockTestLeft(state, blockId, look).filter((id) => id !== questionId);
+  const before = blockTestLeft(state, blockId, look);
+  if (locked || !before.includes(questionId)) return { left: before.length, passed: false };
+  const left = before.filter((id) => id !== questionId);
   if (!correct) left.push(questionId);
   if (!left.length) {
     delete state.testLeft[testKey('block', blockId)];

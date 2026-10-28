@@ -1,9 +1,9 @@
 // 分野の画面。章はたたんだ形で並べ、押すと開いてレッスンと章末テストの1行が出る（段階6-22c で回の行をなくした）。
 // 下に分野テストの1行（★ と合格した回数。段階6-22）。
-import { el, clear, heading, icon, doneMark, todoMark, testMark, BACK_HOME } from '../ui.js?v=dc64bc235b';
+import { el, clear, heading, icon, doneMark, todoMark, testMark, BACK_HOME } from '../ui.js?v=10294e4f56';
 import {
   blockStats, isUnitDone, categoryTestPassCount, blockTestPassCount,
-} from '../logic/progress.js?v=dc64bc235b';
+} from '../logic/progress.js?v=10294e4f56';
 
 // テストの行（オレンジの地と文字、線で描いた鉛筆の絵、★ と合格の通算回数）。
 // left を渡すと、合格していないときに ★ の代わりに「あと◯問」を出す（章末テスト。段階6-22c）。

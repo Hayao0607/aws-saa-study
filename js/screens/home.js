@@ -1,12 +1,12 @@
-// ホームの画面。一番上に「今日やること」（スケジュールが無ければ「次のレッスン」と
-// 「スケジュールを立てる」。予定日が来た復習があれば、その上に「復習　残り◯問」。段階6-22h）、
+// ホームの画面。一番上に「今日やること」（スケジュールが無ければ「復習　残り◯問」・始めたまま合格していない章末テスト・
+// 次にやること・模擬試験の行と「スケジュールを立てる」。段階6-22h・6-22k）、
 // その下に分野の一覧と、模擬試験・苦手な問題・苦手なカードの入口を置く。
 // 「学習の記録を消す」は上のメニューにある（段階6-9）。
-import { el, clear, doneMark, todoMark } from '../ui.js?v=dc64bc235b';
-import { categoryStats, categoryTestPassCount, isUnitDone } from '../logic/progress.js?v=dc64bc235b';
-import { todayEntries } from './todaylist.js?v=dc64bc235b';
+import { el, clear, doneMark, todoMark } from '../ui.js?v=10294e4f56';
+import { categoryStats, categoryTestPassCount, isUnitDone } from '../logic/progress.js?v=10294e4f56';
+import { todayEntries, entry } from './todaylist.js?v=10294e4f56';
 
-// 次のレッスン（並び順で最初の、完了していないレッスン）の1行。
+// 次のレッスン（並び順で最初の、完了していないレッスン）の1行（スケジュールがあるときの「今日の分は完了！」の下）。
 function nextLessonRow(ctx, label) {
   const next = ctx.unitSequence.find((x) => !isUnitDone(ctx.state, x.unit.id));
   if (!next) return null;
@@ -37,14 +37,24 @@ function todayRow(entry) {
   };
 }
 
-// スケジュールが無いとき（予定なし・受験日をすぎた）の復習の行（段階6-22h）。今日やることの復習の行と同じ見た目。
-// 今日までに予定日が来た復習が無ければ出さない。
-function reviewRow(ctx) {
-  const left = ctx.reviewPoolIds().length;
-  if (!left) return null;
-  return todayRow({
-    kind: '復習', name: '', left, leftText: '残り' + left + '問', href: '#/review', done: false, test: false,
-  }).node;
+// スケジュールが無いとき（予定なし・受験日をすぎた）の行の並び（段階6-22h・6-22k）。今日やることの行と同じ見た目（済の行は無い）。
+// 上から：1. 復習　残り◯問（予定日が来た復習があるとき）、2. 始めたまま合格していない章末テスト（すべて。カリキュラムの順）、
+// 3. 次にやること（1行。レッスン・章末テスト・分野テスト。js/logic/plan.js の homeNext）、4. 模擬試験（すべてのレッスンを完了したとき）。
+// どの行も無ければ「すべてのレッスンとテストを終えました。」
+function freeRows(ctx) {
+  const items = [];
+  if (ctx.reviewPoolIds().length) items.push({ type: 'reviews', done: false });
+  const h = ctx.homeNext();
+  for (const s of h.started) items.push({ type: 'block', id: s.block.id, done: false });
+  if (h.next) {
+    if (h.next.type === 'unit') items.push({ type: 'unit', id: h.next.unit.id, done: false });
+    else if (h.next.type === 'block') items.push({ type: 'block', id: h.next.block.id, done: false });
+    else items.push({ type: 'cat', id: h.next.category.name, done: false });
+  }
+  if (h.mock) items.push({ type: 'mock', done: false });
+  const rows = items.map((item) => entry(ctx, item)).filter(Boolean).map((e) => todayRow(e).node);
+  return rows.length ? el('div', { class: 'trows' }, rows)
+    : el('p', { class: 'today-msg', text: 'すべてのレッスンとテストを終えました。' });
 }
 
 // 進みの帯（今日やることのうち、済んだ割合）。
@@ -62,7 +72,7 @@ function todayBox(ctx) {
   const plan = state.plan;
   if (!plan) {
     return el('section', { class: 'panel today' }, [
-      el('div', { class: 'trows' }, [reviewRow(ctx), nextLessonRow(ctx, '次のレッスン')]),
+      freeRows(ctx),
       el('div', { class: 'qactions' }, [
         el('a', { class: 'btn btn-quiet', href: '#/plan' }, 'スケジュールを立てる'),
       ]),
@@ -72,7 +82,7 @@ function todayBox(ctx) {
   if (today.status === 'expired') {
     return el('section', { class: 'panel today' }, [
       el('p', { class: 'today-msg', text: '受験日をすぎました' }),
-      el('div', { class: 'trows' }, [reviewRow(ctx), nextLessonRow(ctx, '次のレッスン')]),
+      freeRows(ctx),
       el('div', { class: 'qactions' }, [
         el('a', { class: 'btn btn-quiet', href: '#/plan' }, 'スケジュールを立て直す'),
       ]),

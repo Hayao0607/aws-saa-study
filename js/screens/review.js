@@ -7,8 +7,8 @@
 // 「前へ」「結果へ」の2つにする。「結果へ」を押すと結果の画面のいちばん上（ボタンのある所）に戻る。
 import {
   el, clear, button, textBlock, cardsBox, scrollToJudge, answeredChoices, questionTerms,
-} from '../ui.js?v=dc64bc235b';
-import { toDisplayLabels } from '../logic/labels.js?v=dc64bc235b';
+} from '../ui.js?v=10294e4f56';
+import { toDisplayLabels } from '../logic/labels.js?v=10294e4f56';
 
 const HEAD_LENGTH = 40;
 

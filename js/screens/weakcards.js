@@ -6,10 +6,10 @@
 // 続けて正解した回数が settings.json の weak_cards.correct_in_a_row_to_remove に届くと外れる。
 import {
   el, clear, heading, banner, progress, prefersReducedMotion, countChooser, BACK_HOME,
-} from '../ui.js?v=dc64bc235b';
-import { prepareCheck, renderCheckCard, isMissed } from './checkcard.js?v=dc64bc235b';
-import { shuffled } from '../logic/shuffle.js?v=dc64bc235b';
-import { weakCardRule } from '../logic/weakcards.js?v=dc64bc235b';
+} from '../ui.js?v=10294e4f56';
+import { prepareCheck, renderCheckCard, isMissed } from './checkcard.js?v=10294e4f56';
+import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
+import { weakCardRule } from '../logic/weakcards.js?v=10294e4f56';
 
 export function render(ctx, root) {
   const reduced = prefersReducedMotion();

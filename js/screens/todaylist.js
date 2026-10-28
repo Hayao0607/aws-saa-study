@@ -1,13 +1,14 @@
 // 今日やることの行の中身（ホームの一覧が使う。段階6-21。終わりの画面の「次へ」は段階6-22e で消した）。
 // 行ごとに、行の頭の小さな言葉・名前・残りの問題数・行き先・済かどうかを返す。データに無いものは出さない。
-import { isUnitDone } from '../logic/progress.js?v=dc64bc235b';
-import { testKey } from '../logic/plan.js?v=dc64bc235b';
+import { isUnitDone } from '../logic/progress.js?v=10294e4f56';
+import { testKey } from '../logic/plan.js?v=10294e4f56';
 
 // 1行の中身：{ key, kind, name, left, leftText, href, done, test }
 // 章末テストは「章末テスト　（章名）　あと◯問」（「合格まで」の数。はじめて受ける前は章の問題数）、
 // 分野テストは「分野テスト　（分野名）」（段階6-22c）
 //   left：数（復習の山の残り・章末テストの「合格まで」。済の行・ほかの行は null）、leftText：その数の出し方
-function entry(ctx, item) {
+// スケジュールが無いときのホームの行も、この中身で作る（段階6-22k。item は { type, id, done: false }）
+export function entry(ctx, item) {
   const state = ctx.state;
   if (item.type === 'reviews') {
     const left = ctx.reviewPoolIds().length;

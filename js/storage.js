@@ -1,13 +1,13 @@
 // 学習の記録の保存と読み出し。保存に触るのは、このファイルだけ。
 // 保存先を変えるときは、ここだけを直す。
 // 1つのキーに JSON で入れる。形を変えたら js/logic/migrate.js の VERSION を上げる。
-import { VERSION, blankState, migrateState, needsMigration } from './logic/migrate.js?v=dc64bc235b';
-import { pickKnown } from './logic/known.js?v=dc64bc235b';
-import { applyAnswer, applyRetryAnswer } from './logic/weak.js?v=dc64bc235b';
-import { markCards, applyPractice } from './logic/weakcards.js?v=dc64bc235b';
+import { VERSION, blankState, migrateState, needsMigration } from './logic/migrate.js?v=10294e4f56';
+import { pickKnown } from './logic/known.js?v=10294e4f56';
+import { applyAnswer, applyRetryAnswer } from './logic/weak.js?v=10294e4f56';
+import { markCards, applyPractice } from './logic/weakcards.js?v=10294e4f56';
 import {
   reviewName, applyReviewAnswer, applyBlockTestAnswer,
-} from './logic/plan.js?v=dc64bc235b';
+} from './logic/plan.js?v=10294e4f56';
 
 const KEY = 'aws-saa-study';
 
@@ -145,7 +145,7 @@ export function addBlockTestPass(blockId, chapter, blockQuestionIds) {
 }
 
 // 章末テストで1問答えた（段階6-22c）。正解した問題は「合格まで」から外し、間違えた問題は「合格まで」の
-// いちばん後ろに移す（補った問題は、間違えたときだけ後ろに入れる）。locked：同じ回の中で合格したあとの解答。
+// いちばん後ろに移す（補った問題は、正解でも間違いでも「合格まで」を変えない。段階6-22l）。locked：同じ回の中で合格したあとの解答。
 // 苦手な問題の記録も付ける（補った問題も同じ。間違えたら入れ、正解したら外す）。
 // 返す値：{ left: 「合格まで」の数, passed: 0になったか }（合格の記録は呼ぶ側で addBlockTestPass を呼ぶ）
 export function answerBlockTestQuestion(blockId, questionId, correct, look, locked) {
