@@ -1,7 +1,7 @@
 // 用語集の画面（段階6-22）。分野ごとの一覧（分野の並びはホームと同じ）と、上に検索の欄。
 // 検索は、見出し・別の呼び方に、入れた文字を含むもの（英字の大文字・小文字は区別しない）。
 // 1項目：見出し、別の呼び方（小さく）、説明、関係する用語（押すとその項目へ）。
-import { el, clear, heading, icon, BACK_HOME } from '../ui.js?v=10294e4f56';
+import { el, clear, heading, icon, BACK_HOME } from '../ui.js?v=c7a45f5a91';
 
 function norm(text) {
   return String(text || '').toLowerCase().replace(/\s+/g, '');

@@ -4,10 +4,10 @@
 // 解き方は ④ 演習（ヒントなし）と同じ（1問ごとに正誤とカード、選択肢の並べ替え。答えたあとは問題文に色）。
 // 1問答えるごとに、その問題を山（それを含むすべての復習の残り）から外して保存する（途中でやめても、答えた分は減っている）。
 // 間違えた問題はすぐ苦手な問題に入れ、正解した問題は苦手な問題から外す。苦手なカードの印は答えるたびに付ける。
-import { el, clear, button, heading, countChooser, BACK_HOME } from '../ui.js?v=10294e4f56';
-import { runQuestions } from './quizrun.js?v=10294e4f56';
-import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
-import { MARK_ALL } from '../logic/weakcards.js?v=10294e4f56';
+import { el, clear, button, heading, countChooser, BACK_HOME } from '../ui.js?v=c7a45f5a91';
+import { runQuestions } from './quizrun.js?v=c7a45f5a91';
+import { shuffled } from '../logic/shuffle.js?v=c7a45f5a91';
+import { MARK_ALL } from '../logic/weakcards.js?v=c7a45f5a91';
 
 export function render(ctx, root) {
   // title：見出し（はじめの画面だけ「復習　残り20問」。段階6-22f）

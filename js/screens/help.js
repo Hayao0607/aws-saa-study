@@ -1,10 +1,10 @@
 // 使い方の画面。レッスンの4つのタブとテスト、スケジュールを1行ずつ説明する。
 // 各画面には説明の文を出さない（説明はここにだけ置く）。
-import { el, clear, heading, BACK_HOME } from '../ui.js?v=10294e4f56';
-import { weakRule } from '../logic/weak.js?v=10294e4f56';
-import { weakCardRule } from '../logic/weakcards.js?v=10294e4f56';
-import { planRule, BLOCK_TEST_QUESTIONS, CATEGORY_TEST_QUESTIONS } from '../logic/plan.js?v=10294e4f56';
-import { passScoreFor } from '../logic/grade.js?v=10294e4f56';
+import { el, clear, heading, BACK_HOME } from '../ui.js?v=c7a45f5a91';
+import { weakRule } from '../logic/weak.js?v=c7a45f5a91';
+import { weakCardRule } from '../logic/weakcards.js?v=c7a45f5a91';
+import { planRule, BLOCK_TEST_QUESTIONS, CATEGORY_TEST_QUESTIONS } from '../logic/plan.js?v=c7a45f5a91';
+import { passScoreFor } from '../logic/grade.js?v=c7a45f5a91';
 
 // 復習の日の言い方（1 → 翌日、7 → 1週間後、それ以外 → n日後）。
 function afterDays(n) {

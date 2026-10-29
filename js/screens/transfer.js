@@ -2,9 +2,9 @@
 // 別の端末でそのファイルを読み込む（読み込みは置き換えだけ。足し合わせはしない）。
 // ファイルの形：{ app: 'aws-saa-study', kind: 'study-record', exported_at: '2026-10-23T17:14:00+09:00',
 //                 version: 8, state: 保存している記録そのまま }
-import { el, clear, button, heading, toast, showDialog, BACK_HOME } from '../ui.js?v=10294e4f56';
-import { exportState, replaceState } from '../storage.js?v=10294e4f56';
-import { VERSION } from '../logic/migrate.js?v=10294e4f56';
+import { el, clear, button, heading, toast, showDialog, BACK_HOME } from '../ui.js?v=c7a45f5a91';
+import { exportState, replaceState } from '../storage.js?v=c7a45f5a91';
+import { VERSION } from '../logic/migrate.js?v=c7a45f5a91';
 
 const APP_NAME = 'aws-saa-study';
 const KIND = 'study-record';

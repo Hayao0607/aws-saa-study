@@ -6,12 +6,12 @@
 // 1問答えるごとに記録する（「合格まで」の出し入れ・苦手な問題の出入り）。
 // 解き終えたら、正解の数と、間違えた問題の一覧（js/screens/review.js。最後の問題では「結果へ」）。
 // 途中で離れるときの確認は出さない（答えた分は残るため。段階6-22）。
-import { el, clear, button, heading, banner, backToCategory, progress } from '../ui.js?v=10294e4f56';
-import { runQuestions } from './quizrun.js?v=10294e4f56';
-import { resultView } from './review.js?v=10294e4f56';
-import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
-import { blockTestPassCount, categoryTestPassCount } from '../logic/progress.js?v=10294e4f56';
-import { MARK_ALL } from '../logic/weakcards.js?v=10294e4f56';
+import { el, clear, button, heading, banner, backToCategory, progress } from '../ui.js?v=c7a45f5a91';
+import { runQuestions } from './quizrun.js?v=c7a45f5a91';
+import { resultView } from './review.js?v=c7a45f5a91';
+import { shuffled } from '../logic/shuffle.js?v=c7a45f5a91';
+import { blockTestPassCount, categoryTestPassCount } from '../logic/progress.js?v=c7a45f5a91';
+import { MARK_ALL } from '../logic/weakcards.js?v=c7a45f5a91';
 
 function questionsOf(ctx, ids) {
   return ids.map((id) => ctx.questionById.get(id)).filter(Boolean);

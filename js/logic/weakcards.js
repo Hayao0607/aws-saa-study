@@ -4,7 +4,7 @@
 // 記録（records）は storage.js が持つ { カードID: { wrong, streak } } の形：
 //   wrong  外れてから付いた印の数（外れたら記録ごと消す）
 //   streak 苦手なカードの練習で、続けて正解した回数
-import { isCorrect } from './grade.js?v=10294e4f56';
+import { isCorrect } from './grade.js?v=c7a45f5a91';
 
 // 印を付けるかの決め方（runQuestions の markCards に渡す）。
 //   'all'   答えるたびに数える（④・テスト・復習・苦手な問題・間違えた問題をもう一度）

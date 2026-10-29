@@ -2,22 +2,9 @@
 // 次にやること・模擬試験の行と「スケジュールを立てる」。段階6-22h・6-22k）、
 // その下に分野の一覧と、模擬試験・苦手な問題・苦手なカードの入口を置く。
 // 「学習の記録を消す」は上のメニューにある（段階6-9）。
-import { el, clear, doneMark, todoMark } from '../ui.js?v=10294e4f56';
-import { categoryStats, categoryTestPassCount, isUnitDone } from '../logic/progress.js?v=10294e4f56';
-import { todayEntries, entry } from './todaylist.js?v=10294e4f56';
-
-// 次のレッスン（並び順で最初の、完了していないレッスン）の1行（スケジュールがあるときの「今日の分は完了！」の下）。
-function nextLessonRow(ctx, label) {
-  const next = ctx.unitSequence.find((x) => !isUnitDone(ctx.state, x.unit.id));
-  if (!next) return null;
-  return el('a', { class: 'trow', href: '#/unit/' + next.unit.id }, [
-    todoMark(24, 'まだ'),
-    el('span', { class: 'trow-name' }, [
-      el('span', { class: 'trow-kind', text: label }),
-      next.unit.name,
-    ]),
-  ]);
-}
+import { el, clear, doneMark, todoMark } from '../ui.js?v=c7a45f5a91';
+import { categoryStats, categoryTestPassCount } from '../logic/progress.js?v=c7a45f5a91';
+import { todayEntries, entry } from './todaylist.js?v=c7a45f5a91';
 
 // 今日の一覧の1行（中身は js/screens/todaylist.js。データに無いもの（消したレッスンなど）は出さない）。
 // 行の頭に小さく「復習」「レッスン」「章末テスト」「分野テスト」「模擬試験」。
@@ -45,16 +32,22 @@ function freeRows(ctx) {
   const items = [];
   if (ctx.reviewPoolIds().length) items.push({ type: 'reviews', done: false });
   const h = ctx.homeNext();
-  for (const s of h.started) items.push({ type: 'block', id: s.block.id, done: false });
+  items.push(...nextItems(h));
+  if (h.mock) items.push({ type: 'mock', done: false });
+  const rows = items.map((item) => entry(ctx, item)).filter(Boolean).map((e) => todayRow(e).node);
+  return rows.length ? el('div', { class: 'trows' }, rows)
+    : el('p', { class: 'today-msg', text: 'すべてのレッスンとテストを終えました。' });
+}
+
+// 始めたまま合格していない章末テスト（すべて）と、次にやること（1行）の行の元（js/logic/plan.js の homeNext）。
+function nextItems(h) {
+  const items = h.started.map((s) => ({ type: 'block', id: s.block.id, done: false }));
   if (h.next) {
     if (h.next.type === 'unit') items.push({ type: 'unit', id: h.next.unit.id, done: false });
     else if (h.next.type === 'block') items.push({ type: 'block', id: h.next.block.id, done: false });
     else items.push({ type: 'cat', id: h.next.category.name, done: false });
   }
-  if (h.mock) items.push({ type: 'mock', done: false });
-  const rows = items.map((item) => entry(ctx, item)).filter(Boolean).map((e) => todayRow(e).node);
-  return rows.length ? el('div', { class: 'trows' }, rows)
-    : el('p', { class: 'today-msg', text: 'すべてのレッスンとテストを終えました。' });
+  return items;
 }
 
 // 進みの帯（今日やることのうち、済んだ割合）。
@@ -98,24 +91,24 @@ function todayBox(ctx) {
   const todo = rows.filter((r) => !r.done);
   const done = rows.filter((r) => r.done);
   const doneCount = done.length;
-  const parts = [
+  // 全部終えたとき（段階6-22m）：見出しを「今日の分は完了！」（緑）にし、まだの行の代わりに次にやることの行
+  // （始めたまま合格していない章末テスト・次にやること。今日済にした章末テストでも、合格していなければ出す）を上に出す
+  const allDone = doneCount === rows.length;
+  const upper = allDone
+    ? nextItems(ctx.homeNext()).map((item) => entry(ctx, item)).filter(Boolean).map((e) => todayRow(e).node)
+    : todo.map((r) => r.node);
+  return el('section', { class: 'panel today' }, [
     el('div', { class: 'today-head' }, [
-      el('h2', { class: 'today-title', text: '今日やること' }),
+      el('h2', { class: 'today-title' + (allDone ? ' is-clear' : ''), text: allDone ? '今日の分は完了！' : '今日やること' }),
       el('span', { class: 'today-count', text: doneCount + ' / ' + rows.length }),
     ]),
     progressBar(doneCount, rows.length),
     el('div', { class: 'trows' }, [
-      ...todo.map((r) => r.node),
-      todo.length && done.length ? el('div', { class: 'trows-sep', role: 'separator' }) : null,
+      ...upper,
+      upper.length && done.length ? el('div', { class: 'trows-sep', role: 'separator' }) : null,
       ...done.map((r) => r.node),
     ]),
-  ];
-  if (doneCount === rows.length) {
-    parts.push(el('p', { class: 'today-clear', text: '今日の分は完了！' }));
-    const next = nextLessonRow(ctx, '次のレッスンへ');
-    if (next) parts.push(el('div', { class: 'trows' }, [next]));
-  }
-  return el('section', { class: 'panel today' }, parts);
+  ]);
 }
 
 export function render(ctx, root) {

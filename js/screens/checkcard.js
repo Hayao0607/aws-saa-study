@@ -8,8 +8,8 @@
 // （「動きを減らす」設定のときは揺らさない）。
 import {
   el, button, cardFaces, textBlock, backNote, icon, stickyBar, scrollToJudge,
-} from '../ui.js?v=10294e4f56';
-import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
+} from '../ui.js?v=c7a45f5a91';
+import { shuffled } from '../logic/shuffle.js?v=c7a45f5a91';
 
 const FLIP_MS = 320;
 

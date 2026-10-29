@@ -313,7 +313,7 @@ a { color: inherit; }
 .today-title { margin: 0; font-size: var(--fs-l); font-weight: 700; }
 .today-count { font-size: var(--fs-m); font-weight: 700; color: var(--accent); }
 .today-msg { margin: 0; font-size: var(--fs-m); font-weight: 700; }
-.today-clear { margin: 12px 0 4px; color: var(--ok); font-size: var(--fs-l); font-weight: 700; text-align: center; }
+.today-title.is-clear { color: var(--ok); }
 .today .qactions { margin-top: 12px; }
 
 .trows { display: flex; flex-direction: column; }

@@ -1,5 +1,5 @@
 // 起動、版の番号の確かめ、データの読み込み、画面の切り替え、上のメニュー、途中で離れるときの確認。
-import { el, clear, button, icon, showDialog, hideDialog, hideTermSheet } from './ui.js?v=10294e4f56';
+import { el, clear, button, icon, showDialog, hideDialog, hideTermSheet } from './ui.js?v=c7a45f5a91';
 import {
   getState, isStorageAvailable, setKnownIds, clearAll,
   setUnitDone, saveToday,
@@ -7,38 +7,38 @@ import {
   setMigrationContext, addBlockTestPass, startCategoryTest, finishCategoryTest,
   answerBlockTestQuestion, finishBlockTestRound, answerCategoryTestQuestion,
   answerReviewQuestion, recordWeakPractice, recordRetryAnswer,
-} from './storage.js?v=10294e4f56';
-import { unitSequence, questionMarks, cardLessons } from './logic/progress.js?v=10294e4f56';
-import { knownIds } from './logic/known.js?v=10294e4f56';
-import { weakQuestionIds } from './logic/weak.js?v=10294e4f56';
-import { pickCategoryTest, pickBlockTest } from './logic/picker.js?v=10294e4f56';
-import { passScoreFor } from './logic/grade.js?v=10294e4f56';
-import { weakCardIds, weakCardRule } from './logic/weakcards.js?v=10294e4f56';
+} from './storage.js?v=c7a45f5a91';
+import { unitSequence, questionMarks, cardLessons } from './logic/progress.js?v=c7a45f5a91';
+import { knownIds } from './logic/known.js?v=c7a45f5a91';
+import { weakQuestionIds } from './logic/weak.js?v=c7a45f5a91';
+import { pickCategoryTest, pickBlockTest } from './logic/picker.js?v=c7a45f5a91';
+import { passScoreFor } from './logic/grade.js?v=c7a45f5a91';
+import { weakCardIds, weakCardRule } from './logic/weakcards.js?v=c7a45f5a91';
 import {
   planRule, dayKey, reviewDates, computeToday, needsRecompute,
   reviewKeys, chapterReviewOnPass, reviewLookup, reviewPool,
   nextChapterReviewDate, categoryTestCount, categoryTestToday,
   blockTestLeft, blockTestStarted, blockTestSize, homeNext,
-} from './logic/plan.js?v=10294e4f56';
-import * as home from './screens/home.js?v=10294e4f56';
-import * as helpScreen from './screens/help.js?v=10294e4f56';
-import * as categoryScreen from './screens/category.js?v=10294e4f56';
-import * as unitScreen from './screens/unit.js?v=10294e4f56';
-import * as testScreen from './screens/test.js?v=10294e4f56';
-import * as mockScreen from './screens/mock.js?v=10294e4f56';
-import * as weakScreen from './screens/weak.js?v=10294e4f56';
-import * as weakCardsScreen from './screens/weakcards.js?v=10294e4f56';
-import * as reviewPoolScreen from './screens/reviewpool.js?v=10294e4f56';
-import * as planScreen from './screens/plan.js?v=10294e4f56';
-import * as glossaryScreen from './screens/glossary.js?v=10294e4f56';
-import * as transferScreen from './screens/transfer.js?v=10294e4f56';
+} from './logic/plan.js?v=c7a45f5a91';
+import * as home from './screens/home.js?v=c7a45f5a91';
+import * as helpScreen from './screens/help.js?v=c7a45f5a91';
+import * as categoryScreen from './screens/category.js?v=c7a45f5a91';
+import * as unitScreen from './screens/unit.js?v=c7a45f5a91';
+import * as testScreen from './screens/test.js?v=c7a45f5a91';
+import * as mockScreen from './screens/mock.js?v=c7a45f5a91';
+import * as weakScreen from './screens/weak.js?v=c7a45f5a91';
+import * as weakCardsScreen from './screens/weakcards.js?v=c7a45f5a91';
+import * as reviewPoolScreen from './screens/reviewpool.js?v=c7a45f5a91';
+import * as planScreen from './screens/plan.js?v=c7a45f5a91';
+import * as glossaryScreen from './screens/glossary.js?v=c7a45f5a91';
+import * as transferScreen from './screens/transfer.js?v=c7a45f5a91';
 
 const root = document.getElementById('app');
 const menuNode = document.getElementById('menu');
 const menuBtn = document.getElementById('menu-btn');
 
 // 版の番号（tools/stamp_version.py が書き換える。手で直さない。段階6-22b）
-const APP_VERSION = '10294e4f56';
+const APP_VERSION = 'c7a45f5a91';
 
 const LEAVE_MESSAGE = 'いま解いている問題は、最初からになります。移動しますか？';
 const CLEAR_MESSAGE = '学習の記録をすべて消して、最初の状態に戻します。消しますか？';

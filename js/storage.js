@@ -1,13 +1,13 @@
 // 学習の記録の保存と読み出し。保存に触るのは、このファイルだけ。
 // 保存先を変えるときは、ここだけを直す。
 // 1つのキーに JSON で入れる。形を変えたら js/logic/migrate.js の VERSION を上げる。
-import { VERSION, blankState, migrateState, needsMigration } from './logic/migrate.js?v=10294e4f56';
-import { pickKnown } from './logic/known.js?v=10294e4f56';
-import { applyAnswer, applyRetryAnswer } from './logic/weak.js?v=10294e4f56';
-import { markCards, applyPractice } from './logic/weakcards.js?v=10294e4f56';
+import { VERSION, blankState, migrateState, needsMigration } from './logic/migrate.js?v=c7a45f5a91';
+import { pickKnown } from './logic/known.js?v=c7a45f5a91';
+import { applyAnswer, applyRetryAnswer } from './logic/weak.js?v=c7a45f5a91';
+import { markCards, applyPractice } from './logic/weakcards.js?v=c7a45f5a91';
 import {
   reviewName, applyReviewAnswer, applyBlockTestAnswer,
-} from './logic/plan.js?v=10294e4f56';
+} from './logic/plan.js?v=c7a45f5a91';
 
 const KEY = 'aws-saa-study';
 

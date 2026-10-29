@@ -5,12 +5,12 @@
 import {
   el, clear, button, cardFaces, heading, banner, progress, prefersReducedMotion, showDialog,
   backToCategory, stickyBar,
-} from '../ui.js?v=10294e4f56';
-import { runQuestions } from './quizrun.js?v=10294e4f56';
-import { prepareCheck, renderCheckCard, isMissed } from './checkcard.js?v=10294e4f56';
-import { MARK_ALL, cardsForCheckCard } from '../logic/weakcards.js?v=10294e4f56';
-import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
-import { isBlockTestDue, isSeenBefore } from '../logic/progress.js?v=10294e4f56';
+} from '../ui.js?v=c7a45f5a91';
+import { runQuestions } from './quizrun.js?v=c7a45f5a91';
+import { prepareCheck, renderCheckCard, isMissed } from './checkcard.js?v=c7a45f5a91';
+import { MARK_ALL, cardsForCheckCard } from '../logic/weakcards.js?v=c7a45f5a91';
+import { shuffled } from '../logic/shuffle.js?v=c7a45f5a91';
+import { isBlockTestDue, isSeenBefore } from '../logic/progress.js?v=c7a45f5a91';
 
 // タブの字は、スマホの幅（1つ85px）に収めるため2行にし、かっこは半角にする。
 const TABS = ['① 覚える', '② 確かめる', '③ 演習\n(ヒントあり)', '④ 演習\n(ヒントなし)'];

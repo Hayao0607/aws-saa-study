@@ -1,12 +1,12 @@
 // 模擬試験の画面。学習の対象の全問から、settings.json の問題数だけを選んで出す。
-import { el, clear, button, heading, banner, BACK_HOME } from '../ui.js?v=10294e4f56';
-import { runQuestions } from './quizrun.js?v=10294e4f56';
-import { resultView } from './review.js?v=10294e4f56';
-import { pickFinalQuestions } from '../logic/picker.js?v=10294e4f56';
-import { shuffled } from '../logic/shuffle.js?v=10294e4f56';
-import { scoreAnswers, isPassed, passScoreFor } from '../logic/grade.js?v=10294e4f56';
-import { recordTestAnswers, addRandomPass } from '../storage.js?v=10294e4f56';
-import { MARK_ALL, cardsForAnswers } from '../logic/weakcards.js?v=10294e4f56';
+import { el, clear, button, heading, banner, BACK_HOME } from '../ui.js?v=c7a45f5a91';
+import { runQuestions } from './quizrun.js?v=c7a45f5a91';
+import { resultView } from './review.js?v=c7a45f5a91';
+import { pickFinalQuestions } from '../logic/picker.js?v=c7a45f5a91';
+import { shuffled } from '../logic/shuffle.js?v=c7a45f5a91';
+import { scoreAnswers, isPassed, passScoreFor } from '../logic/grade.js?v=c7a45f5a91';
+import { recordTestAnswers, addRandomPass } from '../storage.js?v=c7a45f5a91';
+import { MARK_ALL, cardsForAnswers } from '../logic/weakcards.js?v=c7a45f5a91';
 
 // 「合格した回数 ◯回」（0回のときも出す。段階6-22g）
 function passCountText(times) {

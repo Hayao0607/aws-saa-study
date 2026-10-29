@@ -4,9 +4,9 @@
 // スケジュールがあるときは、ページのいちばん下に控えめな「スケジュールを削除する」（段階6-22h）。
 // 削除しても学習の記録と復習は消えない（今日の一覧と分野テストのくり返しの予定は消える）。
 // 削除したあとも、受験日などを入れて保存すれば、また立てられる。
-import { el, clear, button, heading, toast, fieldError, showDialog, BACK_HOME } from '../ui.js?v=10294e4f56';
-import { setPlan } from '../storage.js?v=10294e4f56';
-import { dailyTarget, isDateKey, planStatus } from '../logic/plan.js?v=10294e4f56';
+import { el, clear, button, heading, toast, fieldError, showDialog, BACK_HOME } from '../ui.js?v=c7a45f5a91';
+import { setPlan } from '../storage.js?v=c7a45f5a91';
+import { dailyTarget, isDateKey, planStatus } from '../logic/plan.js?v=c7a45f5a91';
 
 const DELETE_MESSAGE = 'スケジュールを削除しますか？今日やることと分野テストのくり返しの予定がなくなります。'
   + '学習の記録と復習は消えません。';
